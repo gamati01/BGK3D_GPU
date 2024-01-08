@@ -62,9 +62,9 @@
         real(qp), parameter :: qf_qp = 1.5d0
 !
 ! 4/9
-        real(qp), parameter :: p0_qp = 4.d0/9.d0
+        real(qp), parameter :: p0_qp = 1.d0/3.d0
 ! 1/9
-        real(qp), parameter :: p1_qp = 1.d0/9.d0
+        real(qp), parameter :: p1_qp = 1.d0/18.d0
 ! 1/36
         real(qp), parameter :: p2_qp = uno_qp/(rf_qp*rf_qp*(uno_qp+tre_qp))
 #endif

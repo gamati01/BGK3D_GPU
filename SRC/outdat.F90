@@ -38,6 +38,7 @@
       write(16,*) '*********** size of the lattice **************'
       write(16,*) 'l (width x)  =',l
       write(16,*) 'm (width y)  =',m
+      write(16,*) 'n (width z)  =',n
       write(16,*) '*********** fluid data **********************'
       write(16,*) 'viscosity    =',svisc
       write(16,*) 'u0           =',u0

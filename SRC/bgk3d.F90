@@ -111,6 +111,7 @@
          call boundaries         ! boundary conditions
          call propagation        ! propagation step
          call collision(itime)   ! collision step
+         call probe(itime,l/2,m/2,n/2)
 !
 ! get macroscopic values
          call diagnostic(itime,ivtim,icheck,itsave)
@@ -132,8 +133,8 @@
 !     final diagnostic (for check)
       call diagno(itime-1)
       call varm(itime-1)
-      call prof_i(itime-1,m/2)
-      call prof_j(itime-1,l/2)
+      call prof_i(itime-1,m/2,n/2)
+      call prof_j(itime-1,l/2,n/2)
 !
 #ifdef OFFLOAD
 !$omp end target data

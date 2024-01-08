@@ -63,7 +63,7 @@
            a11(l1,j  ,k+1) = a04(l,j,k)
            a14(l1,j  ,k  ) = a05(l,j,k)
 !
-! rear (x = 0)
+! rear (x = 1)
            a03(0,j-1,k  ) = a10(1,j,k)
            a04(0,j  ,k-1) = a11(1,j,k)
            a01(0,j+1,k  ) = a12(1,j,k)
@@ -90,9 +90,9 @@ $acc loop independent
         do k=1,n
         do i=1,l
 #else
-        do concurrent (i=1:l,k=1:n)
+        do concurrent (k=1:n,i=1:l)
 #endif
-! left (y = 0)  
+! left (y = 1)  
             a08(i  ,0,k  )  = a17(i,1,k)
             a12(i+1,0,k  )  = a01(i,1,k)
             a03(i-1,0,k  )  = a10(i,1,k)
@@ -114,7 +114,7 @@ $acc loop independent
         !$acc end parallel
 #endif
 !
-! bc. along y direction
+! bc. along z direction
 !        
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd 
@@ -126,9 +126,9 @@ $acc loop independent
         do j=1,m
         do i=1,l
 #else
-        do concurrent (i=1:l,j=1:m)
+        do concurrent (j=1:m,i=1:l)
 #endif
-! bottom (z = 0)
+! bottom (z = 1)
             a06(i  ,j  ,0)  = a15(i,j,1)
             a04(i-1,j  ,0)  = a11(i,j,1)
             a07(i  ,j-1,0)  = a16(i,j,1)
@@ -156,10 +156,10 @@ $acc loop independent
         time_bc = time_bc + real(countA1-countA0)/(count_rate)
         time_bc1 = time_bc1 + (tcountA1-tcountA0)
 !
-#ifdef DEBUG_2
+!#ifdef DEBUG_2
         if(myrank == 0) then
-           write(6,*) "DEBUG2: Exiting from sub. bcond_driven"
+           write(6,*) "DEBUG2: Exiting from sub. bcond_driven", force
         endif
-#endif
+!#endif
 !        
         end subroutine bcond_driven

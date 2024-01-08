@@ -26,7 +26,7 @@
 !
       implicit none
 !
-      integer :: i, j
+      integer :: i, j, k
       integer :: itime
       character(len=24) :: file_nameVTK
 !
@@ -69,16 +69,20 @@
          write(52, *) j 
       enddo
 !
-      write(52,'(A14,I10,A7)')'Z_COORDINATES ',1,' double'
-      write(52, *) 1
+      write(52,'(A14,I10,A7)')'Z_COORDINATES ',n,' double'
+      do j = 1,n
+         write(52, *) k 
+      enddo
 !               
-      write(52,'(A10,I10)')'POINT_DATA ',l*m
+      write(52,'(A10,I10)')'POINT_DATA ',l*m*n
       write(52,'(A21)')'SCALARS obs float'
       write(52,'(A20)')'LOOKUP_TABLE default'
+      do k = 1,m
       do j = 1,m
          do i = 1,l
-            write(52,*) obs(i,j)*1.0
+            write(52,*) obs(i,j,k)*1.0
          end do
+      end do
       end do
       write(6,*) "INFO: obs vtk dump done"
       close(52) ! vtk obs. dump file

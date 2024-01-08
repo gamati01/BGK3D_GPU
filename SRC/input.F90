@@ -62,6 +62,7 @@
 
       l = lx
       m = ly
+      n = lz
 !
 ! some fix..
       l1 = l+1

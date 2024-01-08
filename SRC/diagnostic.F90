@@ -43,7 +43,7 @@
            call vtk_xy(itime)
            call vtk_om(itime)
 # else           
-           call vtk_xy_bin(itime)
+           call vtk_xy_bin(itime,n/2)
            call vtk_om_bin(itime)
 # endif           
 !
@@ -66,14 +66,15 @@
 !$omp target update from(a01,a03,a05,a08,a10,a12,a14,a17,a19)
 #endif
            call diagno(itime)
-           call probe(itime,l,m/2)
+           call probe(itime,l/2,m/2,n/2)
 !
            call varm(itime)
-           call prof_i(itime,m/2)
-           call prof_j(itime,l/2)
+           call prof_i(itime,m/2,n/2)
+           call prof_j(itime,l/2,n/2)
+           call prof_k(itime,l/2,m/2)
 !
 ! global probe:  Set value for VonKarman streets check with OF
-           call probe(itime,(32*l/50),(m/2))
+!           call probe(itime,(32*l/50),(m/2),n/2)
 
 #ifdef DRAG
            call draglift(itime,333)
