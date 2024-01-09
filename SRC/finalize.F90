@@ -56,26 +56,23 @@
          write(69,1207) time_obs/time_loop , time_obs1/time_loop1
          write(69,9999) 
          write(69,*)  "# Derived (global) metrics "
-         write(69,1106) float(l)*float(m)* & 
+         write(69,1106) float(l)*float(m)*float(n)* &
                         (itfin-itstart)/(time_loop1)/1000.0/1000.0
-         write(69,1107) float(130)*float(l)*float(m)*  &
+         write(69,1107) float(250)*float(l)*float(m)*float(n)*  &
                         (itfin-itstart)/(time_coll)/1000.0/1000.0
-         write(69,1108) float(9*8)*float(l)*float(m)* &
+         write(69,1108) float(9*8)*float(l)*float(m)*float(n)* &
                         (itfin-itstart)/(time_coll)/1000.0/1000.0
-         write(69,1109) float(8*8)*float(l)*float(m)* &
+         write(69,1109) float(8*8)*float(l)*float(m)*float(n)* &
                         (itfin-itstart)/(time_move)/1000.0/1000.0
          write(69,9999) 
          write(69,*)  "# Memory (task 0) metrics "
          write(69,1110) mem_start, mem_stop
-         write(69,*) (l/1024.0)*(m/1024.0)*9*2*4
+         write(69,*) (l/1024.0)*(m/1024.0)*(n/1024.0)*19*2*4
          write(69,9999) 
          close(69)   ! bgk.perf
 !
-         write(6,1106) float(l)*float(m)* &
+         write(6,1106) float(l)*float(m)*float(n)* &
                        (itfin-itstart)/(time_loop1)/1000.0/1000.0
-
-!
-!         call system("git log | grep commit | tail -n 1 >> bgk.perf")
 !
       endif
 !
