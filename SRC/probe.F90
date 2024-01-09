@@ -73,11 +73,11 @@
 !
       write(68,1002) itime, xj/rho, yj/rho, zj/rho, rho
 !
-!#ifdef DEBUG_1
+#ifdef DEBUG_1
       if(myrank == 0) then
          write(6,*) "DEBUG2: Exiting from sub. probe", i0,j0,k0
       endif
-!#endif
+#endif
 !
 ! format
 1002    format(i8,4(e14.6,1x))

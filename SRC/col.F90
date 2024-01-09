@@ -244,10 +244,10 @@
         close(41)
 #endif
 !
-!#ifdef DEBUG_2
+#ifdef DEBUG_2
         if(myrank == 0) then
            write(6,*) "DEBUG2: Exiting from sub. coll", &
                        forcex, forcey, forcez
         endif
-!#endif
+#endif
         end subroutine col
