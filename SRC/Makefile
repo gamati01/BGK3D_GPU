@@ -216,6 +216,8 @@ OBJ2 = check_case.o \
        vtk_obstacle.o \
        vtk_xy.o \
        vtk_xy.binary.o \
+       vtk_xz.binary.o \
+       vtk_yz.binary.o \
        vtk_om.o \
        vtk_om.binary.o \
        varm.o \

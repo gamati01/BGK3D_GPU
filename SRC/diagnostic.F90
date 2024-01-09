@@ -44,6 +44,8 @@
            call vtk_om(itime)
 # else           
            call vtk_xy_bin(itime,n/2)
+           call vtk_xz_bin(itime,m/2)
+           call vtk_yz_bin(itime,l/2)
            call vtk_om_bin(itime)
 # endif           
 !

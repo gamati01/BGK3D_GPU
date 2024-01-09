@@ -76,6 +76,7 @@
       write(6,*) '*********** size of the lattice **************'
       write(6,*) 'l (width x)  =',l
       write(6,*) 'm (width y)  =',m
+      write(6,*) 'n (width z)  =',m
       write(6,*) '****************fluid data*******************'
       write(6,*) 'viscosity    =',svisc
       write(6,*) 'u0           =',u0
