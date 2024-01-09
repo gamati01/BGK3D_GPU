@@ -165,11 +165,11 @@
         write(16,*) "I/O: plane xy (vtk,binary) done", k0
         write(6,*)  "I/O: plane xy (vtk,binary) done", k0
 !
-!#ifdef DEBUG_1
+#ifdef DEBUG_1
         if(myrank == 0) then
            write(6,*) "DEBUG1: Exiting from sub. vtk_xy_bin"
         endif
-!#endif
+#endif
 !
 4000    format(i8.8)
 !

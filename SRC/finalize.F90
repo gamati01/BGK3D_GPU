@@ -34,7 +34,7 @@
          open(69,file='bgk.perf',  status='unknown')
          write(69,9999) 
          write(69,*)  "# Run info "
-         write(69,*)  l, m
+         write(69,*)  l, m, n
          write(69,9999) 
          write(69,*)  "# Time for section "
          write(69,1100) time_init, time_init1
