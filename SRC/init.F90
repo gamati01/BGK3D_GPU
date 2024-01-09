@@ -23,7 +23,6 @@
 !       integer variables used: i,k,opt
 !       real variables used: x,z,xj,zj,vsq,rho,pi
 !                            x02,x04,x05,x06,x11,x13,x14,x15,x19
-!                            kappa,delta
 !       u = velocity along x direction (i, streamwise)
 !       v = velocity along z direction (k, normal-to-wall)
 !
@@ -45,7 +44,6 @@
         real(sp) ::  cx07,cx08,cx09,cx10,cx11,cx12
         real(sp) ::  cx13,cx14,cx15,cx16,cx17,cx18
         real(sp) ::  cx19
-        real(sp) ::  kappa, delta
         real(sp) ::  zstart, ystart, xstart
         real(sp) ::  cte1
 #else
@@ -56,7 +54,7 @@
         real(mykind) ::  cx07,cx08,cx09,cx10,cx11,cx12
         real(mykind) ::  cx13,cx14,cx15,cx16,cx17,cx18
         real(mykind) ::  cx19
-        real(mykind) ::  kappa, delta
+        real(mykind) ::  delta
         real(mykind) ::  zstart, ystart, xstart
         real(mykind) ::  cte1
 #endif
@@ -64,7 +62,6 @@
         integer      :: ll, mm, nn
 !
         parameter(pi=3.141592653589793238462643383279)
-        parameter(kappa=80)
         parameter(delta=0.05)
 !
 ! check parameter opt
@@ -86,7 +83,7 @@
 ! builds the populations
         crho = 1.0_mykind
 !
-        do k = 1, n
+        do k = 0, n1
            z = (real(k+zstart) - 0.5 - 0.5*real(nn))/(0.5*real(nn))
 !           write(76,*) k, z
         enddo
@@ -111,19 +108,19 @@
         zj = 0.0
 !
         do k = 0, n1
-           do j = 0, m1
 #ifdef PERIODIC
-              y = (real(j,mykind)-0.5d0)/real(mm,mykind)  ! 0<x<1 (taylor)
+           z = (real(k,mykind)-0.5d0)/real(nn,mykind)  ! 0<z<1 (taylor)
 #endif
+           do j = 0, m1
               do i = 0, l1
 #ifdef PERIODIC
                  x = (real(i,mykind)-0.5d0)/real(ll,mykind)! 0<x<1 (taylor)
 !
 !kida(?) vortices
-                 xj = 0.1d0*sin(real(2,mykind)*pi*x)*cos(real(2,mykind)*pi*y)
-                 yj =-0.1d0*cos(real(2,mykind)*pi*x)*sin(real(2,mykind)*pi*y)
+                 xj = 0.1d0*sin(real(2,mykind)*pi*x)*cos(real(2,mykind)*pi*z)
+                 zj =-0.1d0*cos(real(2,mykind)*pi*x)*sin(real(2,mykind)*pi*z)
 #endif
-              !
+!
                     cvsq=xj*xj+yj*yj+zj*zj
 
                     cx01 = rf*( xj-yj   )+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)

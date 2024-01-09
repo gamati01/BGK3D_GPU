@@ -168,6 +168,8 @@
        write(16,*) "WARNING: forced offload num_threads(TRICK2)!"
 #endif
 !
+       call git_info
+!
 #ifdef DEBUG_1
        if(myrank == 0) then
           write(6,*) "DEBUG1: Exiting from sub. check_case"
