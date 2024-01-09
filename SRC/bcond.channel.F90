@@ -6,11 +6,11 @@
 !       (c) 2013-20?? by CINECA/G.Amati
 !     NAME
 !       bcond_channel: simple (periodic) channel flow with
-!                      * periodic (rear)
-!                      * periodic (front)
-!                      * no slip (left/right)
+!                      * periodic (rear/front)
+!                      * periodic (left/right)
+!                      * no slip (top/bottom)
 !     DESCRIPTION
-!       2D periodic bc
+!       3D Channel
 !     INPUTS
 !       none
 !     OUTPUT
@@ -23,6 +23,8 @@
 !       2) rear  (x = 0)
 !       3) left  (y = 0)
 !       4) right (y = m)
+!       5) right (z = 0)
+!       6) right (z = n)
 !
 !     *****
 !=====================================================================
@@ -34,7 +36,7 @@
 !
         implicit none
 !
-        integer      :: i,j
+        integer      :: i,j,k
         real(mykind) :: cte1
 !
 #ifdef CHANNEL
@@ -53,84 +55,122 @@
 ! ----------------------------------------------
 ! loop foused for performance reason (for GPU)
 ! -------------------------------------------------------------
+!
+! ----------------------------------------------
+! rear (x = 1)  ! front (x = n)
+! ----------------------------------------------
+!
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd
+        do k=0,n+1
         do j=0,m+1
 #elif OPENACC
- #ifdef KERNELS
- !$acc kernels
- !$acc loop independent
- #else
- !$acc parallel
- !$acc loop independent
- #endif
+!$acc parallel
+!$acc loop independent
+        do k=0,n+1
         do j=0,m+1
 #else
-        do concurrent (j=0:m+1)
+        do concurrent (k=0:n+1,j=0:m+1)
 #endif
 !           
-! rear, periodic bc  (x = l)
+! front, periodic bc (x = 1)
+           a10(l1,j,k) = a10(1,j,k)
+           a11(l1,j,k) = a11(1,j,k)
+           a12(l1,j,k) = a12(1,j,k)
+           a13(l1,j,k) = a13(1,j,k)
+           a14(l1,j,k) = a14(1,j,k)
 !
-           a10(l1,j) = a10(1,j)
-           a12(l1,j) = a12(1,j)
-           a14(l1,j) = a14(1,j)
-!
-! -------------------------------------------------------------
-! front, periodic (x = 0)
-!           
-           a01( 0,j) = a01(l,j)
-           a03( 0,j) = a03(l,j)
-           a05( 0,j) = a05(l,j)
+! rear, periodic bc (x = l)
+           a01(0,j,k)  = a01(l,j,k)
+           a02(0,j,k)  = a02(l,j,k)
+           a03(0,j,k)  = a03(l,j,k)
+           a04(0,j,k)  = a04(l,j,k)
+           a05(0,j,k)  = a05(l,j,k)
         end do
 #ifdef OFFLOAD
+        end do
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
-        #ifdef KERNELS
-        !$acc end kernels
-        #else
-        !$acc end parallel
-        #endif
+        end do
+!$acc end parallel
 #endif
 !
 ! ----------------------------------------------
-! left (y = 0)  
-! right (y = m) 
+! left (y = 1)  ! right (y = m) 
 ! ----------------------------------------------
 !
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd 
+        do k=0,n+1
         do i=0,l+1
 #elif OPENACC
- #ifdef KERNELS
- !$acc kernels
- !$acc loop independent
- #else
- !$acc parallel
- !$acc loop independent
- #endif
+!$acc parallel
+!$acc loop independent
+        do k=0,n+1
         do i=0,l+1
 #else
-        do concurrent (i=0:l+1)
+        do concurrent (k=0:n+1,i=0:l+1)
 #endif
-! left, noslip  (y = 0)  
-           a08(i  ,0)  = a17(i,1)
-           a12(i+1,0)  = a01(i,1)
-           a03(i-1,0)  = a10(i,1)
-
-! right, noslip  (y = m) 
-           a10(i+1,m1) = a03(i,m)
-           a17(i  ,m1) = a08(i,m)
-           a01(i-1,m1) = a12(i,m) 
+! left, periodic bc (y = 0)  
+           a03(i,0,k) = a03(i,m,k)
+           a07(i,0,k) = a07(i,m,k)
+           a08(i,0,k) = a08(i,m,k)
+           a09(i,0,k) = a09(i,m,k)
+           a12(i,0,k) = a12(i,m,k)
+!
+! right, periodic bc (y = m) 
+           a01(i,m1,k) = a01(i,1,k)
+           a10(i,m1,k) = a10(i,1,k)
+           a16(i,m1,k) = a16(i,1,k)
+           a17(i,m1,k) = a17(i,1,k)
+           a18(i,m1,k) = a18(i,1,k)
         enddo
 #ifdef OFFLOAD
+        enddo
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
-        #ifdef KERNELS
-        !$acc end kernels
-        #else
-        !$acc end parallel
-        #endif
+        enddo
+!$acc end parallel
 #endif
+!
+! ----------------------------------------------
+! down (z = 1)  ! top (z = n) 
+! ----------------------------------------------
+!
+#ifdef OFFLOAD
+!$OMP target teams distribute parallel do simd 
+        do j=0,m+1
+        do i=0,l+1
+#elif OPENACC
+!$acc parallel
+!$acc loop independent
+        do j=0,m+1
+        do i=0,l+1
+#else
+        do concurrent (j=0:m+1,i=0:l+1)
+#endif
+! bottom, no slip bc (z = 1)  
+           a06(i  ,j  ,0)  = a15(i,j,1)
+           a04(i-1,j  ,0)  = a11(i,j,1)
+           a07(i  ,j-1,0)  = a16(i,j,1)
+           a13(i+1,j  ,0)  = a02(i,j,1)
+           a18(i  ,j+1,0)  = a09(i,j,1)
+!
+! top, no slip bc (y = m) 
+           a15(i  ,j  ,n1) = a06(i,j,n)
+           a02(i-1,j  ,n1) = a13(i,j,n)
+           a09(i  ,j-1,n1) = a18(i,j,n)
+           a11(i+1,j  ,n1) = a04(i,j,n)
+           a16(i  ,j+1,n1) = a07(i,j,n)
+        enddo
+#ifdef OFFLOAD
+        enddo
+!$OMP end target teams distribute parallel do simd
+#elif OPENACC
+        enddo
+!$acc end parallel
+#endif
+
 !
 ! ----------------------------------------------
 ! stop timing

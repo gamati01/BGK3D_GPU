@@ -10,7 +10,7 @@
 !       computes collision parameters and the forcing term
 !       according to the following equations:
 !       omega = 2.0/(6.0*svisc+1.0)
-!       fgrad = 4.0*u0*svisc/(3.0*float(n)*float(n))
+!       fgrad = 4.0*u0*svisc/(5.0*float(n)*float(n))
 !     INPUTS
 !       none
 !     OUTPUT
@@ -51,7 +51,7 @@
 !
 ! forcing term
 !
-        fgrad = 4.0*u0*svisc/(3.0*real(m,mykind)*real(m,mykind))
+        fgrad = 4.0*u0*svisc/(5.0*real(m,mykind)*real(m,mykind))
 !
         if(myrank == 0) then
            if(fgrad.le.0.0000001) then

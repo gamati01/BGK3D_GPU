@@ -190,14 +190,14 @@
 #ifdef CHANNEL
 # ifdef FORCING_Y
         forcex = zero
-        forcey = fgrad*drho
+        forcey = fgrad*rho
         forcez = zero
 # elif FORCING_Z
         forcex = zero
         forcex = zero
-        forcez = fgrad*drho
+        forcez = fgrad*rho
 # else
-        forcex = fgrad*drho
+        forcex = fgrad*rho
         forcey = zero
         forcez = zero
 # endif
@@ -244,10 +244,10 @@
         close(41)
 #endif
 !
-#ifdef DEBUG_2
+!#ifdef DEBUG_2
         if(myrank == 0) then
            write(6,*) "DEBUG2: Exiting from sub. coll", &
                        forcex, forcey, forcez
         endif
-#endif
+!#endif
         end subroutine col

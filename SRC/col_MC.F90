@@ -192,14 +192,14 @@
 #ifdef CHANNEL
 # ifdef FORCING_Y
         forcex = zero
-        forcey = fgrad*drho
+        forcey = fgrad*rho
         forcez = zero
 # elif FORCING_Z
         forcex = zero
         forcex = zero
-        forcez = fgrad*drho
+        forcez = fgrad*rho
 # else
-        forcex = fgrad*drho
+        forcex = fgrad*rho
         forcey = zero
         forcez = zero
 # endif
