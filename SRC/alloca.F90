@@ -20,13 +20,12 @@
 !
       subroutine alloca()
 !            
-      use storage; 
+      use storage 
       use timing
 ! 
       implicit none
 !
 !     define unit vector  (real/integer)
-!
       cx(  1    ) =  1
       cx(  2    ) =  1
       cx(  3    ) =  1
@@ -151,7 +150,7 @@
       allocate(obs(1:l,1:m,1:n))
       obs = 0
 !
-           allocate(a01(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
+      allocate(a01(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
       allocate(a02(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
       allocate(a03(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
       allocate(a04(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
@@ -171,7 +170,7 @@
       allocate(a18(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
       allocate(a19(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
 !
-            allocate(b01(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
+      allocate(b01(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
       allocate(b02(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
       allocate(b03(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
       allocate(b04(0:l+1+ipad,0:m+1+jpad,0:n+1+kpad))
@@ -211,7 +210,7 @@
       a18 = huge(mykind)
       a19 = huge(mykind)
 !
-            b01 = huge(mykind)
+      b01 = huge(mykind)
       b02 = huge(mykind)
       b03 = huge(mykind)
       b04 = huge(mykind)
@@ -232,7 +231,7 @@
       b19 = huge(mykind)
 !
 #ifdef FUSED
-            c01 => null()
+      c01 => null()
       c02 => null()
       c03 => null()
       c04 => null()

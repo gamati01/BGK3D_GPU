@@ -111,6 +111,7 @@
              call varm(itstart)
              call prof_i(itstart,m/2,n/2)
              call prof_j(itstart,l/2,n/2)
+             call prof_k(itstart,l/2,m/2)
 #ifdef NO_BINARY
              call vtk_xy(itstart)
 #else
