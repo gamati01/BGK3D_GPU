@@ -42,7 +42,7 @@
         do j=jmin,jmax
         do i=imin,imax
 #else
-        do concurrent (k=kmax:kmin, j=jmin:jmax, i=imin:imax)
+        do concurrent (k=kmin:kmax, j=jmin:jmax, i=imin:imax)
 #endif
             if(obs(i,j,k)==1) then
                    a01(i,j,k) = a12(i+1,j-1,k  )
