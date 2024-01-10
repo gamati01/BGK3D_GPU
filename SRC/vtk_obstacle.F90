@@ -56,8 +56,7 @@
       write(52,'(A5)')'Campo'
       write(52,'(A5)')'ASCII'
       write(52,'(A24)')'DATASET RECTILINEAR_GRID'
-      write(52,'(A11,I10,A1,I10,A3)')  & 
-               'DIMENSIONS ',l,' ',m,' 1'
+      write(52,'(A11,I10,A1,I10,A1,I10)')  'DIMENSIONS ',l,' ',m,' ',n
 !
       write(52,'(A14,I10,A7)')'X_COORDINATES ',l,' double'
       do i = 1,l
@@ -70,19 +69,19 @@
       enddo
 !
       write(52,'(A14,I10,A7)')'Z_COORDINATES ',n,' double'
-      do j = 1,n
+      do k = 1,n
          write(52, *) k 
       enddo
 !               
       write(52,'(A10,I10)')'POINT_DATA ',l*m*n
       write(52,'(A21)')'SCALARS obs float'
       write(52,'(A20)')'LOOKUP_TABLE default'
-      do k = 1,m
-      do j = 1,m
-         do i = 1,l
-            write(52,*) obs(i,j,k)*1.0
+      do k = 1,n
+         do j = 1,m
+            do i = 1,l
+               write(52,*) obs(i,j,k)*1.0
+            end do
          end do
-      end do
       end do
       write(6,*) "INFO: obs vtk dump done"
       close(52) ! vtk obs. dump file

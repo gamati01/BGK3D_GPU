@@ -82,12 +82,11 @@
         time_obs = time_obs + real(countO1-countO0)/(count_rate)
         time_obs1 = time_obs1 + (tcountO1-tcountO0)
 !
-#ifdef DEBUG_2
+!#ifdef DEBUG_2
         if(myrank == 0) then
            write(6,*) "DEBUG2: Exiting from sub. bcond_obs", &
                                imin,imax,jmin,imax
-           write(6,*) " "
         endif
-#endif
+!#endif
 !
         end subroutine bcond_obs

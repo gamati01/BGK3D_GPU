@@ -114,9 +114,13 @@
              call prof_j(itstart,l/2,n/2)
              call prof_k(itstart,l/2,m/2)
 #ifdef NO_BINARY
-             call vtk_xy(itstart)
+             call vtk_xy(itstart,n/2)
+             call vtk_xz(itstart,m/2)
+             call vtk_yz(itstart,l/2)
 #else
              call vtk_xy_bin(itstart,n/2)
+             call vtk_xz_bin(itstart,m/2)
+             call vtk_yz_bin(itstart,l/2)
 #endif
           endif
        endif
@@ -132,8 +136,9 @@
 #ifdef NO_OUTPUT
 ! do nothing
 #else
-!       call prof_i(0,m/2)
-!       call prof_j(0,l/2)
+!             call prof_i(itstart,m/2,n/2)
+!             call prof_j(itstart,l/2,n/2)
+!             call prof_k(itstart,l/2,m/2)
 #endif
 !
 #ifdef DEBUG_1

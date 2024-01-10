@@ -33,8 +33,11 @@
 !
       imin = l
       jmin = m
+      kmin = n
       imax = 0
       jmax = 0
+      kmax = 0
+!      
       nobs = 0
 !
       myrank = 0
@@ -43,11 +46,12 @@
 ! creating  obstacle 
 !
 ! creating obstacles
-      write( 6,*) "INFO: creating obstacle (cylinder)" 
-      write(16,*) "INFO: creating obstacle (cylinder)" 
+      write( 6,*) "INFO: creating obstacle (sphere)" 
+      write(16,*) "INFO: creating obstacle (sphere)" 
 !
       icoord = 2*l/5
       jcoord = m/2
+      kcoord = n/2
 !      
       if (m.gt.256) then
           radius = 32
@@ -66,29 +70,29 @@
       R2b = (R+2)*(R+2)   ! upper radius
 !
       do k = 1, n
-      do j = 1, m
-         do i = 1, l
+         do j = 1, m
+            do i = 1, l
 !
-            d2 = (icoord-i)*(icoord-i)  &
-                +(jcoord-j)*(jcoord-j)  & 
-                +(kcoord-k)*(kcoord-k)  
+               d2 = (icoord-i)*(icoord-i)  &
+                   +(jcoord-j)*(jcoord-j)  & 
+                   +(kcoord-k)*(kcoord-k)  
 !        
-            if((d2.gt.R2a).and.(d2.lt.R2b)) then
+               if((d2.gt.R2a).and.(d2.lt.R2b)) then
 !
-                obs(i,j,k) = 1
-                nobs = nobs + 1
+                   obs(i,j,k) = 1
+                   nobs = nobs + 1
 !
-                imin = min(imin,i)
-                jmin = min(jmin,j)
-                kmin = min(kmin,k)
+                   imin = min(imin,i)
+                   jmin = min(jmin,j)
+                   kmin = min(kmin,k)
 !
-                imax = max(imax,i)
-                jmax = max(jmax,j)
-                kmax = max(kmax,k)
+                   imax = max(imax,i)
+                   jmax = max(jmax,j)
+                   kmax = max(kmax,k)
 !
-             endif
+                endif
+            end do
          end do
-      end do
       end do
 !
       write(6,*) "INFO: num. obs         -->",nobs
