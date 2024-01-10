@@ -85,8 +85,8 @@
         do k=1,n
         do i=1,l
 #elif OPENACC
-$acc parallel
-$acc loop independent
+!$acc parallel
+!$acc loop independent
         do k=1,n
         do i=1,l
 #else
@@ -121,8 +121,8 @@ $acc loop independent
         do j=1,m
         do i=1,l
 #elif OPENACC
-$acc parallel
-$acc loop independent
+!$acc parallel
+!$acc loop independent
         do j=1,m
         do i=1,l
 #else
