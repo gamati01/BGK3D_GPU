@@ -133,7 +133,7 @@
 !
 !
 ! computing lift (force along y) 
-        forceY = zero
+        forceZ = zero
         do k = kstart, kstop
            do j = jstart, jstop
               do i = istart, istop
