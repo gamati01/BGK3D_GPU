@@ -18,7 +18,7 @@
 !	
 !     NOTES
 !       character*18 file_name
-!       integer itime,i,k
+!       integer itime,i,j,k
 !       max time allowed  99'999'999
 !
 !     *****
