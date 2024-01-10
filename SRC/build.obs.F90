@@ -61,9 +61,10 @@
 !      
       write(16,*) "WARNING: radius hardwired ", radius
       write( 6,*) "WARNING: radius hardwired ", radius
-      write( 6,*) "INFO: Cyl radius    -->", radius
-      write( 6,*) "INFO: Cyl icoord    -->", icoord
-      write( 6,*) "INFO: Cyl jcoord    -->", jcoord
+      write( 6,*) "INFO: Sphere radius    -->", radius
+      write( 6,*) "INFO: Sphere icoord    -->", icoord
+      write( 6,*) "INFO: Sphere jcoord    -->", jcoord
+      write( 6,*) "INFO: Sphere kcoord    -->", kcoord
 !
       R = radius*uno
       R2a = (R-2)*(R-2)   ! lower radius
