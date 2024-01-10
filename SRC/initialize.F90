@@ -108,6 +108,7 @@
           else
              itstart = 0
              call init(init_v)
+             call diagno(itstart)
              call varm(itstart)
              call prof_i(itstart,m/2,n/2)
              call prof_j(itstart,l/2,n/2)
