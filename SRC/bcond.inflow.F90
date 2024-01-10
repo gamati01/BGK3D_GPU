@@ -20,10 +20,12 @@
 !       
 !     NOTES
 !       Order of upgrading bc
-!       1) front (x = l)
-!       2) rear  (x = 0)
-!       3) left  (y = 0)
-!       4) right (y = m)
+!       1) front  (x = l)
+!       2) rear   (x = 1)
+!       3) left   (y = 1)
+!       4) right  (y = m)
+!       4) bottom (y = 1)
+!       4) up     (y = n)
 !
 !       inflow velocity  is hardwritten : 0.1       
 !
@@ -37,12 +39,12 @@
 !
         implicit none
 !
-        integer      :: i,j
-        real(mykind) :: xj,yj
-        real(mykind) :: cvsq,crho, rhoinv
-        real(mykind) :: cx01,cx03,cx05
-        real(mykind) :: cx10,cx12,cx14
-        real(mykind):: cte1
+        integer      :: i,j,k
+        real(mykind) :: xj,yj,zj
+        real(mykind) :: cx01,cx02,cx03,cx04,cx05
+        real(mykind) :: cx10,cx11,cx12,cx13,cx14
+        real(mykind) :: cvsq,crho,rhoinv
+        real(mykind) :: cte1
 !
 #ifdef INFLOW
 !
@@ -61,109 +63,156 @@
 !        
 ! ----------------------------------------------
 ! loop fused for perfomance reason (on GPU)        
+! ----------------------------------------------
 ! front, outflow  (x = l)
-#ifdef OFFLOAD
+# ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd
+        do k=0,n+1
         do j=0,m+1
-#elif OPENACC
- #ifdef KERNELS
- !$acc kernels
- !$acc loop independent
- #else
- !$acc parallel
- !$acc loop independent
- #endif
+# elif OPENACC
+!$acc parallel
+!$acc loop independent
+        do k=0,n+1
         do j=0,m+1
-#else
-        do concurrent (j=0:m+1)
-#endif
-!         y = (real(y,mykind) -0.5 - 0.5*real(m,mykind))/(0.5*real(m,mykind))
+# else
+        do concurrent (k=0:n+1,j=0:m+1)
+# endif
            crho  =uno
            rhoinv=uno
 !           
 ! front, outflow  (x = l)
-           xj = ((a03(l,j)-a12(l,j)) & 
-                +(a01(l,j)-a10(l,j)) & 
-                +(a05(l,j)-a14(l,j)))*rhoinv
-           yj = ((a03(l,j)-a01(l,j)) &
-                +(a12(l,j)-a10(l,j)) &
-                +(a08(l,j)-a17(l,j)))*rhoinv
-!          
-           cvsq=xj*xj+yj*yj
+           xj = +( a01(l,j,k)+a02(l,j,k)+a03(l,j,k) &
+                  +a04(l,j,k)+a05(l,j,k)            &
+                  -a10(l,j,k)-a11(l,j,k)-a12(l,j,k) &
+                  -a13(l,j,k)-a14(l,j,k) )*rhoinv
 !
-           cx10 = rf*(-xj-yj)+qf*(3.0*(xj+yj)*(xj+yj)-cvsq)
-           cx12 = rf*(-xj+yj)+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)
-           cx14 = rf*(-xj   )+qf*(3.0*(xj   )*(xj   )-cvsq)
+           yj = +( a03(l,j,k)+a07(l,j,k)+a08(l,j,k) &
+                  +a09(l,j,k)+a12(l,j,k)            &
+                  -a01(l,j,k)-a10(l,j,k)-a16(l,j,k) &
+                  -a17(l,j,k)-a18(l,j,k) )*rhoinv
 !
-           a10(l1,j) = crho*p2*(cte1+cx10)
-           a12(l1,j) = crho*p2*(cte1+cx12)
-           a14(l1,j) = crho*p1*(cte1+cx14)
-
+           zj = +( a04(l,j,k)+a06(l,j,k)+a07(l,j,k) &
+                  +a13(l,j,k)+a18(l,j,k)            &
+                  -a02(l,j,k)-a09(l,j,k)-a11(l,j,k) &
+                  -a15(l,j,k)-a16(l,j,k) )*rhoinv
+!
+           cvsq=xj*xj+yj*yj+zj*zj
+!
+           cx10 = rf*(-xj-yj   )+qf*(3.0*(xj+yj)*(xj+yj)-cvsq)
+           cx11 = rf*(-xj   -zj)+qf*(3.0*(xj+zj)*(xj+zj)-cvsq)
+           cx12 = rf*(-xj+yj   )+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)
+           cx13 = rf*(-xj   +zj)+qf*(3.0*(xj-zj)*(xj-zj)-cvsq)
+           cx14 = rf*(-xj      )+qf*(3.0*(xj   )*(xj   )-cvsq)
+!
+           a10(l1,j,k) = crho*p2*(cte1+cx10)
+           a11(l1,j,k) = crho*p2*(cte1+cx11)
+           a12(l1,j,k) = crho*p2*(cte1+cx12)
+           a13(l1,j,k) = crho*p2*(cte1+cx13)
+           a14(l1,j,k) = crho*p1*(cte1+cx14)
+!
 ! rear, inflow (x = 0)
            xj = u_inflow
            yj = zero
+           zj = zero
 !           
-           cvsq=xj*xj+yj*yj
+           cvsq=xj*xj+yj*yj+zj*zj
 !
-           cx01 = rf*( xj-yj   )+qf*(3.d0*(xj-yj)*(xj-yj)-cvsq)
-           cx03 = rf*( xj+yj   )+qf*(3.d0*(xj+yj)*(xj+yj)-cvsq)
-           cx05 = rf*( xj      )+qf*(3.d0*(xj   )*(xj   )-cvsq)
+           cx01 = rf*(xj-yj   )+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)
+           cx02 = rf*(xj   -zj)+qf*(3.0*(xj-zj)*(xj-zj)-cvsq)
+           cx03 = rf*(xj+yj   )+qf*(3.0*(xj+yj)*(xj+yj)-cvsq)
+           cx04 = rf*(xj   +zj)+qf*(3.0*(xj+zj)*(xj+zj)-cvsq)
+           cx05 = rf*(xj      )+qf*(3.0*(xj   )*(xj   )-cvsq)
 !
-           a01(0,j) = crho*p2*(cte1+cx01)
-           a03(0,j) = crho*p2*(cte1+cx03)
-           a05(0,j) = crho*p1*(cte1+cx05)
+           a01(0,j,k) = crho*p2*(cte1+cx01)
+           a02(0,j,k) = crho*p2*(cte1+cx02)
+           a03(0,j,k) = crho*p2*(cte1+cx03)
+           a04(0,j,k) = crho*p2*(cte1+cx04)
+           a05(0,j,k) = crho*p1*(cte1+cx05)
         end do
-#ifdef OFFLOAD
+# ifdef OFFLOAD
+        end do
 !$OMP end target teams distribute parallel do simd
-#elif OPENACC
- #ifdef KERNELS
- !$acc end kernels
- #else
- !$acc end parallel
- #endif
-#endif
+# elif OPENACC
+        end do
+!$acc end parallel
+# endif
 !
 ! ----------------------------------------------
-! left (y = 0)  
-! right (y = m) 
+! left (y = 1)  ! right (y = m)
 ! ----------------------------------------------
 !
-#ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd 
+# ifdef OFFLOAD
+!$OMP target teams distribute parallel do simd
+        do k=0,n+1
         do i=0,l+1
-#elif OPENACC
- #ifdef KERNELS
- !$acc kernels
- !$acc loop independent
- #else
- !$acc parallel
- !$acc loop independent
- #endif
+# elif OPENACC
+!$acc parallel
+!$acc loop independent
+        do k=0,n+1
         do i=0,l+1
-#else
-        do concurrent (i=0:l+1)
-#endif
-! left, noslip  (y = 0)  
-           a17(i,m1) = a17(i,1)
-           a01(i,m1) = a01(i,1)
-           a10(i,m1) = a10(i,1)
-
-! right, noslip  (y = m) 
-           a03(i,0) = a03(i,m)
-           a08(i,0) = a08(i,m)
-           a12(i,0) = a12(i,m)
+# else
+        do concurrent (k=0:n+1,i=0:l+1)
+# endif
+! left (y = 1)
+           a03(i,0,k) = a03(i,m,k)
+           a07(i,0,k) = a07(i,m,k)
+           a08(i,0,k) = a08(i,m,k)
+           a09(i,0,k) = a09(i,m,k)
+           a12(i,0,k) = a12(i,m,k)
+!
+! right (y = m)
+           a01(i,m1,k) = a01(i,1,k)
+           a10(i,m1,k) = a10(i,1,k)
+           a16(i,m1,k) = a16(i,1,k)
+           a17(i,m1,k) = a17(i,1,k)
+           a18(i,m1,k) = a18(i,1,k)
         enddo
-#ifdef OFFLOAD
+# ifdef OFFLOAD
+        enddo
 !$OMP end target teams distribute parallel do simd
-#elif OPENACC
- #ifdef KERNELS
- !$acc end kernels
- #else
- !$acc end parallel
- #endif
-#endif
-
+# elif OPENACC
+        enddo
+!$acc end parallel
+# endif
 !
+! ----------------------------------------------
+! bottom (z = 1)  ! up (z = m)
+! ----------------------------------------------
+!
+# ifdef OFFLOAD
+!$OMP target teams distribute parallel do simd
+        do j=0,m+1
+        do i=0,l+1
+# elif OPENACC
+!$acc parallel
+!$acc loop independent
+        do j=0,m+1
+        do i=0,l+1
+# else
+        do concurrent (j=0:m+1,i=0:l+1)
+# endif
+! bottom (z = 1)
+           a04(i,j,0) = a04(i,j,n)
+           a06(i,j,0) = a06(i,j,n)
+           a07(i,j,0) = a07(i,j,n)
+           a13(i,j,0) = a13(i,j,n)
+           a18(i,j,0) = a18(i,j,n)
+!
+! up (z = n)
+           a02(i,j,n1)  = a02(i,j,1)
+           a09(i,j,n1)  = a09(i,j,1)
+           a11(i,j,n1)  = a11(i,j,1)
+           a15(i,j,n1)  = a15(i,j,1)
+           a16(i,j,n1)  = a16(i,j,1)
+        enddo
+# ifdef OFFLOAD
+        enddo
+!$OMP end target teams distribute parallel do simd
+# elif OPENACC
+        enddo
+!$acc end parallel
+# endif
+!        
 ! ----------------------------------------------
 ! stop timing
         call time(tcountA1)
