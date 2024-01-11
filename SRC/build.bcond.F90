@@ -7,14 +7,7 @@
 !     NAME
 !       bcond
 !     DESCRIPTION
-!       set BC flags 
-!       if flag == 0 periodic b.c.
-!               == 1 solid wall
-!               == 2 moving wall
-!               == 3 no-slip wall
-!               == 4 inflow
-!               == 5 outflow
-!               == other --> error
+!       to remove?
 !     INPUTS
 !       none
 !     OUTPUT
@@ -44,7 +37,7 @@
       write(16,*) "INFO: reference velocities --->", u0, u00
 !
 #  ifdef OPENACC
-      write(38,*) "#", myrank, ":my GPU  is ------>", mydev, ndev
+!      write(38,*) "#", myrank, ":my GPU  is ------>", mydev, ndev
 #  endif
 !
 #ifdef DEBUG_1

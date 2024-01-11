@@ -139,13 +139,13 @@
 !
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd
-        do j=0,m+1
-        do i=0,l+1
+        do j=1,m
+        do i=1,l
 #elif OPENACC
 !$acc parallel
 !$acc loop independent collapse(2)
-        do j=0,m+1
-        do i=0,l+1
+        do j=1,m
+        do i=1,l
 #else
         do concurrent (j=0:m+1,i=0:l+1)
 #endif

@@ -25,19 +25,19 @@
 !
         implicit none
 !
-        integer:: i, j, k
+        integer:: i,j,k
 !
         call SYSTEM_CLOCK(countO0, count_rate, count_max)
         call time(tcountO0)
 !
 #ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd collapse(2)
+!$OMP target teams distribute parallel do simd collapse(3)
         do k=kmin,kmax
         do j=jmin,jmax
         do i=imin,imax
 #elif OPENACC
 !$acc parallel
-!$acc loop independent collapse(2)
+!$acc loop independent collapse(3)
         do k=kmin,kmax
         do j=jmin,jmax
         do i=imin,imax
@@ -74,7 +74,6 @@
         end do
 !$acc end parallel
 #endif
-
 !
 ! stop timing
         call time(tcountO1)

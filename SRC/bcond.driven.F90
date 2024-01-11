@@ -75,7 +75,7 @@
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
         end do
-        !$acc end parallel
+!$acc end parallel
 #endif
 !        
 ! bc. along y direction
@@ -111,7 +111,7 @@
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
         enddo
-        !$acc end parallel
+!$acc end parallel
 #endif
 !
 ! bc. along z direction
@@ -147,7 +147,7 @@
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
         enddo
-        !$acc end parallel
+!$acc end parallel
 #endif
 !
 ! stop timing

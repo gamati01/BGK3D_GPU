@@ -70,7 +70,7 @@
         do k=0,n+1
         do j=0,m+1
 # elif OPENACC
-!$acc parallel
+!$acc parallel collapse(2)
 !$acc loop independent
         do k=0,n+1
         do j=0,m+1
@@ -146,7 +146,7 @@
         do k=0,n+1
         do i=0,l+1
 # elif OPENACC
-!$acc parallel
+!$acc parallel collapse(2)
 !$acc loop independent
         do k=0,n+1
         do i=0,l+1
@@ -184,7 +184,7 @@
         do j=0,m+1
         do i=0,l+1
 # elif OPENACC
-!$acc parallel
+!$acc parallel collapse(2)
 !$acc loop independent
         do j=0,m+1
         do i=0,l+1
