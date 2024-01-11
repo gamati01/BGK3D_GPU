@@ -58,7 +58,8 @@
 #endif
 !
 #ifdef OFFLOAD
-!$omp target update from(a01,a03,a05,a08,a10,a12,a14,a17,a19)
+!$omp target update from(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, &
+!$omp&                   a11,a12,a13,a14,a15,a16,a17,a18,a19)
 #endif
        do k=1,n
          do j=1,m

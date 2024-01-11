@@ -96,8 +96,10 @@
       endif
 !
 #ifdef OFFLOAD
-!$OMP target data map(tofrom:  a01,a03,a05,a08,a10,a12,a14,a17,a19, & 
-!$OMP&                         b01,b03,b05,b08,b10,b12,b14,b17,obs) 
+!$OMP target data map(tofrom:a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, &
+!$OMP&                       a11,a12,a13,a14,a15,a16,a17,a18,a19,     &
+!$OMP&                       b01,b02,b03,b04,b05,b06,b07,b08,b09,b10, &
+!$OMP&                       b11,b12,b13,b14,b15,b16,b17,b18,b19)
 #endif
 !      
       do itime=itstart+1,itfin
@@ -111,7 +113,6 @@
          call boundaries         ! boundary conditions
          call propagation        ! propagation step
          call collision(itime)   ! collision step
-         call probe(itime,l/2,m/2,n/2)
 !
 ! get macroscopic values
          call diagnostic(itime,ivtim,icheck,itsave)

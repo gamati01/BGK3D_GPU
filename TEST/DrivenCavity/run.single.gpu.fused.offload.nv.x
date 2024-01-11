@@ -22,7 +22,7 @@ cd $DIR
 echo "step 1: compiling"
 cd ../../../SRC
 make clean
-make openacc NVIDIA=1 SINGLE=1 FUSED=1 LDC=1
+make offload NVIDIA=1 SINGLE=1 FUSED=1 LDC=1
 if ($?) then
    echo "compiling fails..."
    exit 1

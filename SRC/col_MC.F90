@@ -60,7 +60,7 @@
         write(file_nameD(11:13),3300) myrank
         open(41,file=file_nameD, status='unknown')        ! debug file
 !
-!        call probe(itime,(3*l/4),(m/2))
+        call probe(itime,(3*l/4),(m/2))
 #endif
 !
 #ifdef NOSHIFT
@@ -76,13 +76,13 @@
         forcez = zero
 !
 #ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd collapse(2)
+!$OMP target teams distribute parallel do simd collapse(3)
         do k = 1,n
         do j = 1,m
         do i = 1,l
 #elif OPENACC
- !$acc parallel
- !$acc loop independent collapse(2)
+!$acc parallel
+!$acc loop independent collapse(3)
         do k = 1,n
         do j = 1,m
         do i = 1,l

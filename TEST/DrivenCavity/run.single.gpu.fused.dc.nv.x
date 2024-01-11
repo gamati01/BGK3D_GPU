@@ -1,7 +1,7 @@
 #!/bin/tcsh
 #
 setenv DIR RUN_SINGLE_GPU_FUSED_DC_NV
-setenv EXE bgk3d.docuncurrent.x
+setenv EXE bgk3d.doconcurrent.x
 #
 echo "---------------------------"
 echo "starting test driven cavity"
@@ -22,7 +22,7 @@ cd $DIR
 echo "step 1: compiling"
 cd ../../../SRC
 make clean
-make openacc NVIDIA=1 SINGLE=1 FUSED=1 LDC=1
+make doconcurrent NVIDIA=1 SINGLE=1 FUSED=1 LDC=1
 if ($?) then
    echo "compiling fails..."
    exit 1

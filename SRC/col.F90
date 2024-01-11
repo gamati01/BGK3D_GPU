@@ -74,13 +74,13 @@
         forcez = zero
 !
 #ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd collapse(2)
+!$OMP target teams distribute parallel do simd collapse(3)
         do k = 1,n
         do j = 1,m
-           do i = 1,l
+        do i = 1,l
 #elif OPENACC
- !$acc parallel
- !$acc loop independent collapse(2)
+!$acc parallel
+!$acc loop independent collapse(3)
         do k = 1,n
         do j = 1,m
         do i = 1,l

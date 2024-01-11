@@ -45,7 +45,7 @@
 ! bc. along X direction
 !        
 #ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd 
+!$OMP target teams distribute parallel do simd collapse(2)
         do k=1,n
         do j=1,m
 #elif OPENACC
@@ -81,7 +81,7 @@
 ! bc. along y direction
 !        
 #ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd 
+!$OMP target teams distribute parallel do simd collapse(2)
         do k=1,n
         do i=1,l
 #elif OPENACC
@@ -117,7 +117,7 @@
 ! bc. along z direction
 !        
 #ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd 
+!$OMP target teams distribute parallel do simd collapse(2)
         do j=1,m
         do i=1,l
 #elif OPENACC
