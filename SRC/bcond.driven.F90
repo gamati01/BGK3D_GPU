@@ -50,7 +50,7 @@
         do j=1,m
 #elif OPENACC
 !$acc parallel
-!$acc loop independent 
+!$acc loop independent collapse(2)
         do k=1,n
         do j=1,m
 #else
@@ -86,7 +86,7 @@
         do i=1,l
 #elif OPENACC
 !$acc parallel
-!$acc loop independent
+!$acc loop independent collapse(2)
         do k=1,n
         do i=1,l
 #else
@@ -122,7 +122,7 @@
         do i=1,l
 #elif OPENACC
 !$acc parallel
-!$acc loop independent
+!$acc loop independent collapse(2)
         do j=1,m
         do i=1,l
 #else
