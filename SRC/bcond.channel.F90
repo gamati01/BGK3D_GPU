@@ -61,7 +61,7 @@
 ! ----------------------------------------------
 !
 #ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd collapse(2)
+!$OMP target teams distribute parallel do simd
         do k=0,n+1
         do j=0,m+1
 #elif OPENACC
@@ -100,7 +100,7 @@
 ! ----------------------------------------------
 !
 #ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd collapse(2)
+!$OMP target teams distribute parallel do simd 
         do k=0,n+1
         do i=0,l+1
 #elif OPENACC
@@ -138,7 +138,7 @@
 ! ----------------------------------------------
 !
 #ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd  collapse(2)
+!$OMP target teams distribute parallel do simd
         do j=0,m+1
         do i=0,l+1
 #elif OPENACC
