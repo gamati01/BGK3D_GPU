@@ -66,12 +66,12 @@
 ! ----------------------------------------------
 ! front, outflow  (x = l)
 # ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd
+!$OMP target teams distribute parallel do simd collapse(2)
         do k=0,n+1
         do j=0,m+1
 # elif OPENACC
-!$acc parallel collapse(2)
-!$acc loop independent
+!$acc parallel 
+!$acc loop independent collapse(2)
         do k=0,n+1
         do j=0,m+1
 # else
@@ -142,12 +142,12 @@
 ! ----------------------------------------------
 !
 # ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd
+!$OMP target teams distribute parallel do simd collapse(2)
         do k=0,n+1
         do i=0,l+1
 # elif OPENACC
-!$acc parallel collapse(2)
-!$acc loop independent
+!$acc parallel 
+!$acc loop independent collapse(2)
         do k=0,n+1
         do i=0,l+1
 # else
@@ -180,12 +180,12 @@
 ! ----------------------------------------------
 !
 # ifdef OFFLOAD
-!$OMP target teams distribute parallel do simd
+!$OMP target teams distribute parallel do simd collapse(2)
         do j=0,m+1
         do i=0,l+1
 # elif OPENACC
-!$acc parallel collapse(2)
-!$acc loop independent
+!$acc parallel 
+!$acc loop independent collapse(2)
         do j=0,m+1
         do i=0,l+1
 # else
