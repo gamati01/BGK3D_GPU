@@ -54,7 +54,6 @@
         real(mykind) ::  cx07,cx08,cx09,cx10,cx11,cx12
         real(mykind) ::  cx13,cx14,cx15,cx16,cx17,cx18
         real(mykind) ::  cx19
-        real(mykind) ::  delta
         real(mykind) ::  zstart, ystart, xstart
         real(mykind) ::  cte1
 #endif
@@ -62,7 +61,6 @@
         integer      :: ll, mm, nn
 !
         parameter(pi=3.141592653589793238462643383279)
-        parameter(delta=0.05)
 !
 ! check parameter opt
         if((opt.lt.0).or.(opt.gt.5)) then

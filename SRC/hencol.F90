@@ -32,13 +32,8 @@
 #ifdef HALF_P
 # ifdef MIXEDPRECISION
 ! issues with namelist and half precision
-<<<<<<< HEAD
         write(6,*)  "WARNING: Hand-made forcing for Mixing1 precision"
         write(16,*) "WARNING: Hand-made forcing for Mixing1 precision"
-=======
-        write(6,*)  "WARNING: Hand-made forcing..."
-        write(16,*) "WARNING: Hand-made forcing..."
->>>>>>> 9d47d05212e83e1f1bbafabcc6e2fdb0384180dc
         u0 = 0.0
 !        svisc = 0.05
 !        omega = 1.53846153846153846153

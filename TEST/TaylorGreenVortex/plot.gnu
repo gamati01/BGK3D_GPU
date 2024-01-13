@@ -170,7 +170,10 @@ set fit brief errorvariables nocovariancevariables errorscaling prescale nowrap 
 GNUTERM = "qt"
 set key box opaque
 ## Last datafile plotted: "RUN_DOUBLE_GPU_FUSED_OPENACC_NV/diagno.dat"
-p   'RUN_DOUBLE_GPU_FUSED_OPENACC_NV/diagno.dat' u 1:6 w l t " Double precision "
-rep 'RUN_MIXED2_GPU_FUSED_OPENACC_NV/diagno.dat' u 1:6 w l t " Mixed precision "
-rep 'RUN_SINGLE_GPU_FUSED_OPENACC_NV/diagno.dat' u 1:6 w l t " Single precision "
+p   'RUN_DOUBLE_GPU_FUSED_OPENACC_NV/diagno.dat' u 1:6 w lp lw 4 t " Double precision "
+rep 'RUN_MIXED2_GPU_FUSED_OPENACC_NV/diagno.dat' u 1:6 w lp lw 3 t " Mixed2 precision "
+rep 'RUN_SINGLE_GPU_FUSED_OPENACC_NV/diagno.dat' u 1:6 w lp lw 3 t " Single precision "
+#rep 'RUN_MIXED1_GPU_FUSED_OPENACC_NV/diagno.dat' u 1:6 w lp lw 3 t " Mixed1 precision "
+pause -1 "press any key"
+rep 0.0025*exp(-0.3*4*3.1415*3.1415*x/(128*128))          lw 2 t " Exponential Decay "
 #    EOF
