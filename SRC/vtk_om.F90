@@ -46,8 +46,6 @@
         file_name = 'tec_om.xxxxxxxx.vtk'
 !
 #ifdef QQQQQQ
-        myrank = 0
-!
         write(file_name(8:15),4000) itime
         open(55,file=file_name,status='unknown')
 !
@@ -60,12 +58,12 @@
 !
         write(55,'(A14,I10,A7)')'X_COORDINATES ',l-2,' double'
         do i = 2,l-1
-           write(55, *) i + offset(1)
+           write(55, *) i 
         enddo
 !
         write(55,'(A14,I10,A7)')'Y_COORDINATES ',m-2,' double'
         do j = 2,m-1
-           write(55, *) j + offset(2)
+           write(55, *) j 
         enddo
 !
         write(55,'(A14,I10,A7)')'Z_COORDINATES ',1,' double'
@@ -77,17 +75,21 @@
         do j = 2,m-1
            do i = 2,l-1
 !
-           d_up= a01(i,j+1)+a03(i,j+1)+a05(i,j+1)+a08(i,j+1) &
-                 +a10(i,j+1)+a12(i,j+1)+a14(i,j+1)+a17(i,j+1)+a19(i,j+1)
+           d_up=   a01(i,j+1)+a03(i,j+1)+a05(i,j+1)+a08(i,j+1) &
+                  +a10(i,j+1)+a12(i,j+1)+a14(i,j+1)+a17(i,j+1) & 
+                  +a19(i,j+1)+cte1
 !
-           d_down=a01(i,j-1)+a03(i,j-1)+a05(i,j-1)+a08(i,j-1) &
-                 +a10(i,j-1)+a12(i,j-1)+a14(i,j-1)+a17(i,j-1)+a19(i,j-1)
+           d_down= a01(i,j-1)+a03(i,j-1)+a05(i,j-1)+a08(i,j-1) &
+                  +a10(i,j-1)+a12(i,j-1)+a14(i,j-1)+a17(i,j-1) &
+                  +a19(i,j-1)+cte1
 !
-           d_left=a01(i-1,j)+a03(i-1,j)+a05(i-1,j)+a08(i-1,j) &
-                 +a10(i-1,j)+a12(i-1,j)+a14(i-1,j)+a17(i-1,j)+a19(i-1,j)
+           d_left= a01(i-1,j)+a03(i-1,j)+a05(i-1,j)+a08(i-1,j) &
+                  +a10(i-1,j)+a12(i-1,j)+a14(i-1,j)+a17(i-1,j) &
+                  +a19(i-1,j)+cte1
 !
            d_right=a01(i+1,j)+a03(i+1,j)+a05(i+1,j)+a08(i+1,j) &
-                 +a10(i+1,j)+a12(i+1,j)+a14(i+1,j)+a17(i+1,j)+a19(i+1,j)
+                  +a10(i+1,j)+a12(i+1,j)+a14(i+1,j)+a17(i+1,j) &
+                  +a19(i+1,j)+cte1
 !
            up1 =  a01(i,j+1)+a03(i,j+1)+a05(i,j+1) &
                  -a10(i,j+1)-a12(i,j+1)-a14(i,j+1)/d_up
@@ -113,12 +115,10 @@
 !        
         write(6,*)  "I/O : vorticity (vtk) done"
         write(16,*) "I/O : vorticity (vtk) done"
+#endif        
 !
 #ifdef DEBUG_1
-        if(myrank == 0) then
-           write(6,*) "DEBUG1: Exiting from sub. vtk_om"
-        endif
-#endif
+        write(6,*) "DEBUG1: Exiting from sub. vtk_om"
 #endif
 !
 1004    format((e14.6,1x))

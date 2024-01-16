@@ -50,6 +50,7 @@
         myrank = 0
 !
 #ifdef QQQQQQQ
+!        
 #ifdef NOSHIFT
        cte1 = zero
 #else
@@ -164,6 +165,7 @@
            write(6,*) "DEBUG1: Exiting from sub. vtk_om_bin"
         endif
 #endif
+!        
 #endif
 !
 4000    format(i8.8)

@@ -42,7 +42,7 @@ ifdef NVIDIA
  OPENACC = -Minfo=acc -O2 -acc -DOPENACC -ta=tesla:cc80,managed
  #OPENACC = -Minfo=acc -O2 -acc -DOPENACC -ta=tesla:cc70,managed
  MULTI = -stdpar=multicore -Minfo=all -DMULTICORE
- DC  = -stdpar=gpu
+ DC  = -stdpar=gpu -DDC
  SCC = nvcc 
  SFC = nvfortran -DPGI
  FOPT = -O2 -Mnodepchk -Mcontiguous
@@ -85,7 +85,7 @@ ifdef INTEL
  MULTI =  -qopenmp -DMULTICORE
  OPENACC = not supported
  OFFLOAD = 
- DC = 
+ DC =  -DDC
  SFC = ifx
  SCC = icx
  FOPT = -O3 -xCORE-AVX512 -mtune=skylake-avx512 -assume contiguous_pointer
@@ -177,6 +177,12 @@ ifdef VKS
  CHECK4=VKS
 endif
 #
+# Kida Volrtex
+ifdef KVX
+ PREPROC =-DPERIODIC -DKVX
+ CHECK4=KVX
+endif
+#
 #----------------------------------------------
 # module & subroutines
 #----------------------------------------------
@@ -214,6 +220,7 @@ OBJ2 = check_case.o \
        hencol.o \
        outdat.o \
        vtk_obstacle.o \
+       vtk_3d.binary.o \
        vtk_xy.o \
        vtk_xy.binary.o \
        vtk_xz.binary.o \
@@ -249,8 +256,8 @@ OBJ = $(OBJ1) $(OBJ0) $(OBJ2) $(OBJ3)
 serial: all
 #
 #----------------------------------------------
-all: VER := doconcurrent
-all: serial := $(SFC) $(DC) 
+all: VER := serial
+all: serial := $(SFC) 
 all: CC := $(SCC)
 all: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 	$(FC) $(OPT) $(DC) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -o ../RUN/bgk3d.$(VER).x 

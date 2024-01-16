@@ -136,6 +136,7 @@
       call varm(itime-1)
       call prof_i(itime-1,m/2,n/2)
       call prof_j(itime-1,l/2,n/2)
+!      call vtk_3d_bin(itime)
 !
 #ifdef OFFLOAD
 !$omp end target data

@@ -20,7 +20,7 @@
 !     TODO
 !
 !     NOTES
-!       integer variables used: i,k,opt
+!       integer variables used: i,j.k,opt
 !       real variables used: x,z,xj,zj,vsq,rho,pi
 !                            x02,x04,x05,x06,x11,x13,x14,x15,x19
 !       u = velocity along x direction (i, streamwise)
@@ -107,16 +107,29 @@
 !
         do k = 0, n1
 #ifdef PERIODIC
-           z = (real(k,mykind)-0.5d0)/real(nn,mykind)  ! 0<z<1 (taylor)
+           z = (real(k,mykind)-0.5d0)/real(nn,mykind)  ! 0<z<1 
 #endif
            do j = 0, m1
+#ifdef PERIODIC
+              y = (real(j,mykind)-0.5d0)/real(mm,mykind)  ! 0<y<1 
+#endif
               do i = 0, l1
 #ifdef PERIODIC
-                 x = (real(i,mykind)-0.5d0)/real(ll,mykind)! 0<x<1 (taylor)
-!
-!kida(?) vortices
+                 x = (real(i,mykind)-0.5d0)/real(ll,mykind)! 0<x<1 
+#endif
+!                 
+#ifdef PERIODIC
                  xj = 0.1d0*sin(real(2,mykind)*pi*x)*cos(real(2,mykind)*pi*z)
                  zj =-0.1d0*cos(real(2,mykind)*pi*x)*sin(real(2,mykind)*pi*z)
+# ifdef KVX
+! if Kida overwrite....                 
+                 xj = 0.1d0*sin(2*pi*x)*    & 
+                      (cos(6*pi*y)*cos(2*pi*z)-cos(2*pi*y)*cos(6*pi*z))
+                 yj = 0.1d0*sin(2*pi*y)*    & 
+                      (cos(6*pi*z)*cos(2*pi*x)-cos(2*pi*z)*cos(6*pi*x))
+                 zj =-0.1d0*sin(2*pi*z)*    & 
+                      (cos(6*pi*x)*cos(2*pi*y)-cos(2*pi*x)*cos(6*pi*y))
+# endif
 #endif
 !
                     cvsq=xj*xj+yj*yj+zj*zj
