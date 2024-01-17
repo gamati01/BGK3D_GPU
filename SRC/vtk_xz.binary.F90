@@ -10,7 +10,7 @@
 !     DESCRIPTION
 !       Graphic subroutine:
 !       write 2D binary output for VTK with velocity + pressure field
-!       write on unit 52 (vtk_xy.xxxxxxx.dat) where 
+!       write on unit 53 (vtk_xy.xxxxxxx.dat) where 
 !                                  xxxxxxx is the timestep
 !       the file is closed at the end of the subroutine
 !     INPUTS
@@ -56,23 +56,23 @@
         write(file_name(8:15),4000) itime
 !
 ! first write legal header (ASCII)
-        open(52,file=file_name,status='unknown')
+        open(53,file=file_name,status='unknown')
 !
-        write(52,'(A26)')'# vtk DataFile Version 2.0'
-        write(52,'(A5)') 'Campo'
-        write(52,'(A6)') 'BINARY'
-        write(52,'(A25)')'DATASET STRUCTURED_POINTS'
-        write(52,'(A11,I10,A1,I10,A1,I10)') 'DIMENSIONS ',l,' ',1,' ',n
-        write(52,'(A7,I10,A1,I10,A1,I10)')  'ORIGIN ',1,' ',j0,' ',1  
-        write(52,'(A8,I10,A1,I10,A1,I10)') 'SPACING ',1,' ',1,' ',1     
-        write(52,'(A10,I10)')'POINT_DATA ',l*n*1
+        write(53,'(A26)')'# vtk DataFile Version 2.0'
+        write(53,'(A5)') 'Campo'
+        write(53,'(A6)') 'BINARY'
+        write(53,'(A25)')'DATASET STRUCTURED_POINTS'
+        write(53,'(A11,I10,A1,I10,A1,I10)') 'DIMENSIONS ',l,' ',1,' ',n
+        write(53,'(A7,I10,A1,I10,A1,I10)')  'ORIGIN ',1,' ',j0,' ',1  
+        write(53,'(A8,I10,A1,I10,A1,I10)') 'SPACING ',1,' ',1,' ',1     
+        write(53,'(A10,I10)')'POINT_DATA ',l*n*1
 !
 ! vector
-        write(52,'(A23)')'VECTORS velocity float'
-        close(52)
+        write(53,'(A23)')'VECTORS velocity float'
+        close(53)
 !
 ! then write output (binary)
-        open(52,file=file_name,status='old', position='append', & 
+        open(53,file=file_name,status='old', position='append', & 
                 form='unformatted',access='STREAM',CONVERT="BIG_ENDIAN")
 !
         do k = 1,n
@@ -92,10 +92,10 @@
                    +a13(i,j0,k)+a14(i,j0,k)+a15(i,j0,k)+a16(i,j0,k) &
                    +a17(i,j0,k)+a18(i,j0,k)+a19(i,j0,k)+cte1
 !
-              write(52) u/den, w/den, v/den
+              write(53) u/den, w/den, v/den
            end do
         end do
-        close(52)
+        close(53)
 !
         write(16,*) "I/O: plane xz (vtk,binary) done", j0
         write(6,*)  "I/O: plane xz (vtk,binary) done", j0

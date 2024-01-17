@@ -7,14 +7,13 @@
 !     NAME
 !       init
 !     DESCRIPTION
-!       initial condition for 2d bgk simulation
-!       you can choose: poiseuille flow	(OK)
-!                       taylor vortices	(OK)
-!                       rest flow	(OK)
+!       initial condition for 3d bgk simulation
 !       write on unit 76 (fort.76) x & z coordinates for check
 !     INPUTS
-!       opt ---> 0	rest flow  (default)
-!           ---> 3	Kida vortices
+!      	rest flow  (default)
+!      	Kida vortices
+!      	TG vortex (2D)
+!      	TG vortex (3D)
 !     OUTPUT
 !       none
 !     TODO
@@ -119,7 +118,9 @@
 #endif
 !                 
 #ifdef PERIODIC
+! default TaylorGreen (2)
                  xj = 0.1d0*sin(real(2,mykind)*pi*x)*cos(real(2,mykind)*pi*z)
+                 yj = zero
                  zj =-0.1d0*cos(real(2,mykind)*pi*x)*sin(real(2,mykind)*pi*z)
 # ifdef KVX
 ! if Kida overwrite....                 
@@ -129,50 +130,54 @@
                       (cos(6*pi*z)*cos(2*pi*x)-cos(2*pi*z)*cos(6*pi*x))
                  zj =-0.1d0*sin(2*pi*z)*    & 
                       (cos(6*pi*x)*cos(2*pi*y)-cos(2*pi*x)*cos(6*pi*y))
+# elif TGV3D
+                 xj = 0.1d0*sin(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
+                 yj =-0.1d0*cos(2*pi*x)*sin(2*pi*y)*sin(2*pi*z)
+                 zj = zero
 # endif
 #endif
 !
-                    cvsq=xj*xj+yj*yj+zj*zj
+                 cvsq=xj*xj+yj*yj+zj*zj
+!
+                 cx01 = rf*( xj-yj   )+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)
+                 cx02 = rf*( xj   -zj)+qf*(3.0*(xj-zj)*(xj-zj)-cvsq)
+                 cx03 = rf*( xj+yj   )+qf*(3.0*(xj+yj)*(xj+yj)-cvsq)
+                 cx04 = rf*( xj   +zj)+qf*(3.0*(xj+zj)*(xj+zj)-cvsq)
+                 cx05 = rf*( xj      )+qf*(3.0*(xj   )*(xj   )-cvsq)
+                 cx06 = rf*(       zj)+qf*(3.0*(zj   )*(zj   )-cvsq)
+                 cx07 = rf*(    yj+zj)+qf*(3.0*(yj+zj)*(yj+zj)-cvsq)
+                 cx08 = rf*(    yj   )+qf*(3.0*(yj   )*(yj   )-cvsq)
+                 cx09 = rf*(    yj-zj)+qf*(3.0*(yj-zj)*(yj-zj)-cvsq)
+                 cx10 = rf*(-xj-yj   )+qf*(3.0*(xj+yj)*(xj+yj)-cvsq)
+                 cx11 = rf*(-xj   -zj)+qf*(3.0*(xj+zj)*(xj+zj)-cvsq)
+                 cx12 = rf*(-xj+yj   )+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)
+                 cx13 = rf*(-xj   +zj)+qf*(3.0*(xj-zj)*(xj-zj)-cvsq)
+                 cx14 = rf*(-xj      )+qf*(3.0*(xj   )*(xj   )-cvsq)
+                 cx15 = rf*(      -zj)+qf*(3.0*(zj   )*(zj   )-cvsq)
+                 cx16 = rf*(   -yj-zj)+qf*(3.0*(yj+zj)*(yj+zj)-cvsq)
+                 cx17 = rf*(   -yj   )+qf*(3.0*(yj   )*(yj   )-cvsq)
+                 cx18 = rf*(   -yj+zj)+qf*(3.0*(yj-zj)*(yj-zj)-cvsq)
+                 cx19 = rf*(   0.0   )+qf*(3.0*( 0.0 )*( 0.0 )-cvsq)
 
-                    cx01 = rf*( xj-yj   )+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)
-                    cx02 = rf*( xj   -zj)+qf*(3.0*(xj-zj)*(xj-zj)-cvsq)
-                    cx03 = rf*( xj+yj   )+qf*(3.0*(xj+yj)*(xj+yj)-cvsq)
-                    cx04 = rf*( xj   +zj)+qf*(3.0*(xj+zj)*(xj+zj)-cvsq)
-                    cx05 = rf*( xj      )+qf*(3.0*(xj   )*(xj   )-cvsq)
-                    cx06 = rf*(       zj)+qf*(3.0*(zj   )*(zj   )-cvsq)
-                    cx07 = rf*(    yj+zj)+qf*(3.0*(yj+zj)*(yj+zj)-cvsq)
-                    cx08 = rf*(    yj   )+qf*(3.0*(yj   )*(yj   )-cvsq)
-                    cx09 = rf*(    yj-zj)+qf*(3.0*(yj-zj)*(yj-zj)-cvsq)
-                    cx10 = rf*(-xj-yj   )+qf*(3.0*(xj+yj)*(xj+yj)-cvsq)
-                    cx11 = rf*(-xj   -zj)+qf*(3.0*(xj+zj)*(xj+zj)-cvsq)
-                    cx12 = rf*(-xj+yj   )+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)
-                    cx13 = rf*(-xj   +zj)+qf*(3.0*(xj-zj)*(xj-zj)-cvsq)
-                    cx14 = rf*(-xj      )+qf*(3.0*(xj   )*(xj   )-cvsq)
-                    cx15 = rf*(      -zj)+qf*(3.0*(zj   )*(zj   )-cvsq)
-                    cx16 = rf*(   -yj-zj)+qf*(3.0*(yj+zj)*(yj+zj)-cvsq)
-                    cx17 = rf*(   -yj   )+qf*(3.0*(yj   )*(yj   )-cvsq)
-                    cx18 = rf*(   -yj+zj)+qf*(3.0*(yj-zj)*(yj-zj)-cvsq)
-                    cx19 = rf*(   0.0   )+qf*(3.0*( 0.0 )*( 0.0 )-cvsq)
-
-                    a01(i,j,k) = crho*p2*(cte1+cx01)
-                    a02(i,j,k) = crho*p2*(cte1+cx02)
-                    a03(i,j,k) = crho*p2*(cte1+cx03)
-                    a04(i,j,k) = crho*p2*(cte1+cx04)
-                    a05(i,j,k) = crho*p1*(cte1+cx05)
-                    a06(i,j,k) = crho*p1*(cte1+cx06)
-                    a07(i,j,k) = crho*p2*(cte1+cx07)
-                    a08(i,j,k) = crho*p1*(cte1+cx08)
-                    a09(i,j,k) = crho*p2*(cte1+cx09)
-                    a10(i,j,k) = crho*p2*(cte1+cx10)
-                    a11(i,j,k) = crho*p2*(cte1+cx11)
-                    a12(i,j,k) = crho*p2*(cte1+cx12)
-                    a13(i,j,k) = crho*p2*(cte1+cx13)
-                    a14(i,j,k) = crho*p1*(cte1+cx14)
-                    a15(i,j,k) = crho*p1*(cte1+cx15)
-                    a16(i,j,k) = crho*p2*(cte1+cx16)
-                    a17(i,j,k) = crho*p1*(cte1+cx17)
-                    a18(i,j,k) = crho*p2*(cte1+cx18)
-                    a19(i,j,k) = crho*p0*(cte1+cx19)
+                 a01(i,j,k) = crho*p2*(cte1+cx01)
+                 a02(i,j,k) = crho*p2*(cte1+cx02)
+                 a03(i,j,k) = crho*p2*(cte1+cx03)
+                 a04(i,j,k) = crho*p2*(cte1+cx04)
+                 a05(i,j,k) = crho*p1*(cte1+cx05)
+                 a06(i,j,k) = crho*p1*(cte1+cx06)
+                 a07(i,j,k) = crho*p2*(cte1+cx07)
+                 a08(i,j,k) = crho*p1*(cte1+cx08)
+                 a09(i,j,k) = crho*p2*(cte1+cx09)
+                 a10(i,j,k) = crho*p2*(cte1+cx10)
+                 a11(i,j,k) = crho*p2*(cte1+cx11)
+                 a12(i,j,k) = crho*p2*(cte1+cx12)
+                 a13(i,j,k) = crho*p2*(cte1+cx13)
+                 a14(i,j,k) = crho*p1*(cte1+cx14)
+                 a15(i,j,k) = crho*p1*(cte1+cx15)
+                 a16(i,j,k) = crho*p2*(cte1+cx16)
+                 a17(i,j,k) = crho*p1*(cte1+cx17)
+                 a18(i,j,k) = crho*p2*(cte1+cx18)
+                 a19(i,j,k) = crho*p0*(cte1+cx19)
 !
               end do
            end do
