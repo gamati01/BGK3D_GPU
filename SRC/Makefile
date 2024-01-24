@@ -257,10 +257,10 @@ serial: all
 #
 #----------------------------------------------
 all: VER := serial
-all: serial := $(SFC) 
+all: FC := $(SFC) 
 all: CC := $(SCC)
 all: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
-	$(FC) $(OPT) $(DC) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -o ../RUN/bgk3d.$(VER).x 
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -o ../RUN/bgk3d.$(VER).x 
 	@echo "-------------------------------------------------"
 	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4) 
 	@echo $(FINE)
@@ -268,10 +268,12 @@ all: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 #
 #----------------------------------------------
 doconcurrent: VER := doconcurrent
-doconcurrent: FC := $(SFC) $(DC)
+doconcurrent: FOPT += $(DC)
+doconcurrent: OPT  += $(DC)
+doconcurrent: FC := $(SFC) 
 doconcurrent: CC := $(SCC)
 doconcurrent: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
-	$(FC) $(OPT) $(DC) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -o ../RUN/bgk3d.$(VER).x
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
 	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)
 	@echo $(FINE)
