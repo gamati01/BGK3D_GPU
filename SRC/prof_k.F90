@@ -88,7 +88,7 @@
 !
 #ifdef DEBUG_1
         if(myrank == 0) then
-           write(6,*) "DEBUG1: Exiting from sub. prof_k", icoord, kcoord
+           write(6,*) "DEBUG1: Exiting from sub. prof_k", icoord, jcoord
         endif
 #endif
 !

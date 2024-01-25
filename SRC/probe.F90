@@ -75,7 +75,7 @@
 !
 #ifdef DEBUG_1
       if(myrank == 0) then
-         write(6,*) "DEBUG2: Exiting from sub. probe", i0,j0,k0
+         write(6,*) "DEBUG1: Exiting from sub. probe", i0,j0,k0
       endif
 #endif
 !

@@ -118,10 +118,10 @@
 #endif
 !                 
 #ifdef PERIODIC
-! default TaylorGreen (2)
-                 xj = 0.1d0*sin(real(2,mykind)*pi*x)*cos(real(2,mykind)*pi*z)
-                 yj = zero
-                 zj =-0.1d0*cos(real(2,mykind)*pi*x)*sin(real(2,mykind)*pi*z)
+! default TaylorGreen (2D)
+!                 xj = 0.1d0*sin(real(2,mykind)*pi*x)*cos(real(2,mykind)*pi*z)
+!                 yj = zero
+!                 zj =-0.1d0*cos(real(2,mykind)*pi*x)*sin(real(2,mykind)*pi*z)
 # ifdef KVX
 ! if Kida overwrite....                 
                  xj = 0.1d0*sin(2*pi*x)*    & 
@@ -130,10 +130,14 @@
                       (cos(6*pi*z)*cos(2*pi*x)-cos(2*pi*z)*cos(6*pi*x))
                  zj =-0.1d0*sin(2*pi*z)*    & 
                       (cos(6*pi*x)*cos(2*pi*y)-cos(2*pi*x)*cos(6*pi*y))
+              stop
 # elif TGV3D
-                 xj = 0.1d0*sin(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
+                 xj = 0.1d0*sin(2*pi*x)*cos(2*pi*y)*sin(2*pi*z)
                  yj =-0.1d0*cos(2*pi*x)*sin(2*pi*y)*sin(2*pi*z)
                  zj = zero
+
+                 crho = uno + ((0.1*0.1)/16.0)* & 
+                         (cos(4*pi*x)+cos(4*pi*y))*(cos(4*pi*z)+2)
 # endif
 #endif
 !

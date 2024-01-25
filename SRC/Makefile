@@ -232,6 +232,7 @@ OBJ2 = check_case.o \
        prof_j.o \
        prof_i.o \
        diagno.o \
+       dissipation.o \
        probe.o \
        movef.o\
        save_raw.o\

@@ -48,6 +48,10 @@
        cte1 = uno
 #endif
 !
+       xj   = 0.0
+       yj   = 0.0
+       zj   = 0.0
+       rho  = 0.0
        tke  = zero
        rtot = zero
        xtot = zero
@@ -101,8 +105,8 @@
                rtot = rtot+rho
                xtot = xtot+xj
                ytot = ytot+yj
-               ztot = ytot+yj
-               stot = stot+(xj*xj+yj*yj)
+               ztot = ytot+zj
+               stot = stot+0.5*(xj*xj+yj*yj+zj*zj)
 !
             enddo
          enddo
@@ -122,7 +126,7 @@
        write(63,1004) itime, xtot, ytot, ztot, rtot, stot
        flush(63)
 !
-! conmpute turbulent kinetic energy
+! compute turbulent kinetic energy
        do k=1,n
          do j=1,m
             do i=1,l
@@ -165,14 +169,14 @@
          enddo
        enddo
 
-       write(666,*) itime, tke/(float(l)*float(m)*float(n))
+       write(666,*) itime, (tke/float(l))/float(m)/float(n)
        flush(666)
-
-#ifdef DEBUG_1
+!
+!#ifdef DEBUG_1
        if (myrank == 0) then
-          write(6,*) "DEBUG1: Exiting from sub. diagno"
+          write(6,*) "DEBUG1: Exiting from sub. diagno", cte1
        endif
-#endif
+!#endif
 !
 ! formats...
 !

@@ -27,7 +27,6 @@
 !                                68 (probe.dat)
 !                                69 (bgk.perf)
 !       velocity directions:
-      !       velocity directions:
 !        direction  1    unit vector = ( 1,-1, 0)   tipo 2
 !        direction  2    unit vector = ( 1, 0,-1)   tipo 2
 !        direction  3    unit vector = ( 1, 1, 0)   tipo 2
