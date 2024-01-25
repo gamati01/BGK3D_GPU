@@ -108,6 +108,10 @@
          enddo
        enddo
 !
+       mean_u = mean_u/float(l-2)/float(m-2)/float(n-2)       
+       mean_v = mean_v/float(l-2)/float(m-2)/float(n-2)       
+       mean_w = mean_w/float(l-2)/float(m-2)/float(n-2)       
+!
 ! compute energy dissipation / turbulent kinetic energy
 ! may br not the most efficent       
        do k=2,n-1
