@@ -144,15 +144,13 @@
           enddo
        enddo
 
-       write(777,1004) itime, diss/float(l)/float(m)/float(n), & 
-                               tke/float(l)/float(m)/float(n)    
-       flush(777)
+       write(77,1004) itime, diss/float(l)/float(m)/float(n), & 
+                              tke/float(l)/float(m)/float(n)    
+       flush(77)
 !
-!#ifdef DEBUG_1
-       if (myrank == 0) then
-          write(6,*) "DEBUG1: Exiting from sub. dissipation", cte1
-       endif
-!#endif
+#ifdef DEBUG_1
+       write(6,*) "DEBUG1: Exiting from sub. dissipation", cte1
+#endif
 !
 ! formats...
 !
