@@ -132,12 +132,19 @@
                       (cos(6*pi*x)*cos(2*pi*y)-cos(2*pi*x)*cos(6*pi*y))
               stop
 # elif TGV3D
-                 xj = 0.1d0*sin(2*pi*x)*cos(2*pi*y)*sin(2*pi*z)
-                 yj =-0.1d0*cos(2*pi*x)*sin(2*pi*y)*sin(2*pi*z)
-                 zj = zero
+! Article by Emerson et al.              
+!                 xj = 0.1d0*sin(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
+!                 yj =-0.1d0*cos(2*pi*x)*sin(2*pi*y)*cos(2*pi*z)
+!                 zj = zero
 
-                 crho = uno + ((0.1*0.1)/16.0)* & 
-                         (cos(4*pi*x)+cos(4*pi*y))*(cos(4*pi*z)+2)
+!                 crho = uno + ((0.1*0.1)/16.0)* & 
+!                         (cos(4*pi*x)+cos(4*pi*y))*(cos(4*pi*z)+2)
+!
+!
+! Kajzer et al. (2014)              
+                 xj = 0.10d0*cos(2*pi*x)*sin(2*pi*y)*sin(2*pi*z)
+                 yj =-0.05d0*sin(2*pi*x)*cos(2*pi*y)*sin(2*pi*z)
+                 zj =-0.05d0*sin(2*pi*x)*sin(2*pi*y)*cos(2*pi*z)
 # endif
 #endif
 !

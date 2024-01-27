@@ -30,7 +30,10 @@
        integer, INTENT(in) :: itime
        integer             :: i,j,k
 !
-       real(mystorage), dimension(l,m,n) :: vel_u, vel_v, vel_w, density
+       real(mystorage), dimension(0:l+1,0:m+1,0:n+1) :: density
+       real(mystorage), dimension(0:l+1,0:m+1,0:n+1) :: vel_u
+       real(mystorage), dimension(0:l+1,0:m+1,0:n+1) :: vel_v
+       real(mystorage), dimension(0:l+1,0:m+1,0:n+1) :: vel_w
 !       
        real(mykind):: diss,tke
        real(mykind):: rho,rhoinv
@@ -68,9 +71,9 @@
 !$omp target update from(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, &
 !$omp&                   a11,a12,a13,a14,a15,a16,a17,a18,a19)
 #endif
-       do k=1,n
-         do j=1,m
-            do i=1,l
+       do k=0,n+1
+         do j=0,m+1
+            do i=0,l+1
                x01 = a01(i,j,k)
                x02 = a02(i,j,k)
                x03 = a03(i,j,k)
@@ -108,15 +111,15 @@
          enddo
        enddo
 !
-       mean_u = mean_u/float(l-2)/float(m-2)/float(n-2)       
-       mean_v = mean_v/float(l-2)/float(m-2)/float(n-2)       
-       mean_w = mean_w/float(l-2)/float(m-2)/float(n-2)       
+       mean_u = mean_u/float(l+2)/float(m+2)/float(n+2)       
+       mean_v = mean_v/float(l+2)/float(m+2)/float(n+2)       
+       mean_w = mean_w/float(l+2)/float(m+2)/float(n+2)       
 !
 ! compute energy dissipation / turbulent kinetic energy
 ! may br not the most efficent       
-       do k=2,n-1
-         do j=2,m-1
-            do i=2,l-1
+       do k=1,n
+         do j=1,m
+            do i=1,l
 
 ! compute u_y
                 u_y = vel_u(i,j+1,k)-vel_u(i,j-1,k)
@@ -141,8 +144,8 @@
           enddo
        enddo
 
-       write(777,1004) itime, diss/float(l-2)/float(m-2)/float(n-2), & 
-                              tke/float(l-2)/float(m-2)/float(n-2)    
+       write(777,1004) itime, diss/float(l)/float(m)/float(n), & 
+                               tke/float(l)/float(m)/float(n)    
        flush(777)
 !
 !#ifdef DEBUG_1

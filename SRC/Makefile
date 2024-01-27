@@ -22,7 +22,7 @@ CHECK2 = SINGLE
 # flags
 # default (GNU)
 MULTI =   -fopenmp -DMULTICORE -ftree-parallelize-loops=4
-OPENACC = 
+OPENACC = -fopenacc -DNOMANAGED
 OFFLOAD = -fopenmp  -foffload=nvptx-none -DOFFLOAD
 DC = not supported
 SFC = gfortran

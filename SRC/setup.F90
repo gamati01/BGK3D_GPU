@@ -39,6 +39,7 @@
       character(len=19) :: file_name7
       character(len=21) :: file_name8   ! draglift
       character(len=21) :: file_name9   ! bgktime.log
+      character(len=23) :: file_name10  ! dissipation
 !
 ! set values for serial version...
       myrank = 0
@@ -66,14 +67,18 @@
 ! time
       file_name9 = 'bgk.time.log'
 !
+| dissipation & tke      
+!
+      file_name10 ='dissipation.dat'
+!      
       open(16,file='bgk.log',  status='unknown')
       open(61,file=file_name2, status='unknown')        ! prof_i
       open(68,file=file_name3, status='unknown')        ! probe
-      open(38,file=file_name5, status='unknown')        ! task.XXXXXX.log
       open(64,file=file_name6, status='unknown')        ! prof_j
       open(65,file=file_name7, status='unknown')        ! prof_k
       open(66,file=file_name8, status='unknown')        ! drag
       open(99,file=file_name9, status='unknown')        ! bgk.time.log
+      open(77,file=file_name10, status='unknown')       ! dissipation.txt
 !
       open(63,file='diagno.dat',status='unknown')       ! diagno.dat
 !
