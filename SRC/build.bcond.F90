@@ -36,14 +36,8 @@
 !
       write(16,*) "INFO: reference velocities --->", u0, u00
 !
-#  ifdef OPENACC
-!      write(38,*) "#", myrank, ":my GPU  is ------>", mydev, ndev
-#  endif
-!
 #ifdef DEBUG_1
-      if(myrank == 0) then
-         write(6,*) "DEBUG1: Exiting from sub. build_bcond"
-      endif
+      write(6,*) "DEBUG1: Exiting from sub. build_bcond"
 #endif
 !
       end subroutine build_bcond

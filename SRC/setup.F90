@@ -67,7 +67,7 @@
 ! time
       file_name9 = 'bgk.time.log'
 !
-| dissipation & tke      
+! dissipation & tke      
 !
       file_name10 ='dissipation.dat'
 !      
