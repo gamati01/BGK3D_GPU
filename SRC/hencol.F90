@@ -27,7 +27,10 @@
         use storage
         implicit none
 !
+! set collision term        
         omega = (uno+uno)/((6.0*svisc)+1.0)
+! copy for LES model        
+        omega1 = omega
 !
 #ifdef HALF_P
 # ifdef MIXEDPRECISION

@@ -168,6 +168,12 @@
        write(16,*) "WARNING: forced offload num_threads(TRICK2)!"
 #endif
 !
+#ifdef LES
+       write(6,*)  "WARNING: LES (Smagorinsky) enabled UNDER DEVELOPMENT"
+       write(16,*) "WARNING: LES (Smagorinsky) enabled UNDER DEVELOPMENT"
+#endif
+!       
+! get info about git version used right now       
        call git_info
 !
 #ifdef DEBUG_1
