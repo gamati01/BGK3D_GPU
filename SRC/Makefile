@@ -2,7 +2,7 @@
 # makefile BGK3D_GPU
 # Giorgio Amati, CASPUR 2000-2012
 # Giorgio Amati, CINECA 2013-202?
-#----------------------------------------------
+
 # targets:
 #
 #		<none> default ---> GPU code with do concurrent (nvfortran)
@@ -171,13 +171,13 @@ ifdef TGV
  CHECK4=TGV
 endif
 #
-# Von Karman Streets 
+# Von Karman Streets  (SPHERE)
 ifdef VKS
  PREPROC =-DINFLOW -DOBSTACLE -DDRAG -DVKS
  CHECK4=VKS
 endif
 #
-# Kida Volrtex
+# Kida Vortex
 ifdef KVX
  PREPROC =-DPERIODIC -DKVX
  CHECK4=KVX
@@ -225,8 +225,7 @@ OBJ2 = check_case.o \
        vtk_xy.binary.o \
        vtk_xz.binary.o \
        vtk_yz.binary.o \
-       vtk_om.o \
-       vtk_om.binary.o \
+       vtk_om.xy.binary.o \
        varm.o \
        prof_k.o \
        prof_j.o \
