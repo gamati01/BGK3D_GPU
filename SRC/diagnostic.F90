@@ -37,7 +37,7 @@
            call time(tcountA0)
 !
 #ifdef OFFLOAD
-!$omp target update from(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10 & 
+!$omp target update from(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, & 
 !$omp&                   a11,a12,a13,a14,a15,a16,a17,a18,a18)
 #endif
 # ifdef NO_BINARY
