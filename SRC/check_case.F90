@@ -169,7 +169,9 @@
 #endif
 !
 #ifdef LES
+       write(6,*)  "INFO: LES Smagorinsky constant ", cteS 
        write(6,*)  "WARNING: LES (Smagorinsky) enabled UNDER DEVELOPMENT"
+       write(16,*) "INFO: LES Smagorinsky constant ", cteS 
        write(16,*) "WARNING: LES (Smagorinsky) enabled UNDER DEVELOPMENT"
 #endif
 !       

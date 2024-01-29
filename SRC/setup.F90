@@ -52,6 +52,9 @@
 ! probe
       file_name3 = 'probe.dat'
 !
+! u_med      
+      file_name4 = 'u_med.dat'
+!
 ! task
       file_name5 = 'task.log'
 !
@@ -74,6 +77,7 @@
       open(16,file='bgk.log',  status='unknown')
       open(61,file=file_name2, status='unknown')        ! prof_i
       open(68,file=file_name3, status='unknown')        ! probe
+      open(62,file=file_name4, status='unknown')        ! u_med 
       open(64,file=file_name6, status='unknown')        ! prof_j
       open(65,file=file_name7, status='unknown')        ! prof_k
       open(66,file=file_name8, status='unknown')        ! drag
@@ -128,13 +132,10 @@
 !
 ! check, read input data and data allocation
 !
-      call check_case
-!
       call input(itfin,ivtim,isignal,itsave,icheck, & 
                    itrestart,init_v)
 !
-      file_name4 = 'u_med.dat'
-      open(62,file=file_name4, status='unknown')
+      call check_case
 !
       call alloca()
 !

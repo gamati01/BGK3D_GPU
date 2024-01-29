@@ -76,7 +76,7 @@
         integer:: nobs                          ! #of obstacles per task
         integer:: offset(2)
         integer:: ipad,jpad,kpad
-        integer:: flag1, flag2, flag3
+        integer:: flag1,flag2,flag3
 !
         real(mykind), dimension(1:19) :: cx,cy,cz
         integer, dimension(1:19) :: icx,icy,icz
@@ -113,10 +113,10 @@
         integer, dimension(:,:,:), allocatable :: obs
         integer:: radius
 !
-
         real(mykind):: svisc, u0, u00, fgrad
         real(mykind):: u0x, u0y, u0z
         real(mykind):: u_inflow
+        real(mykind):: cteS                ! Smagorinski constant  
         integer:: mydev, ndev              ! openacc variables
 !
 ! correct casting

@@ -53,7 +53,7 @@
         real(mykind) :: forcex, forcey, forcez
         real(mykind) :: cte1,cte0
         real(mykind) :: Pxx,Pyy,Pzz,Pxy,Pyx,Pxz,Pzx,Pyz,Pzy
-        real(mykind) :: Ptotal,Ts,cteS
+        real(mykind) :: Ptotal,Ts
 !
 #ifdef DEBUG_3
         real(mykind) :: cte
@@ -344,7 +344,6 @@
                               (2.0*Pxy*Pyx)                  + &
                               (2.0*Pxz*Pzx)                  + &
                               (2.0*Pyz*Pzy)) 
-                 cteS = 0.1
 !           
 ! adding turbulent viscosity
                  Ts = 1/(2*omega1) + sqrt(18*(cteS)**2 *Ptotal+(1/omega1)**2)/2

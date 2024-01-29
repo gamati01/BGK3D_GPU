@@ -45,7 +45,7 @@
                             itsave, icheck, irestart, init_v, &
                             lx, ly, lz,                       &
                             flag1, flag2, flag3, ipad, jpad,  & 
-                            radius
+                            radius, cteS
 !
 ! default values
       flag1 = 0         ! creating obstacles  (1-file/2-creating)
@@ -55,6 +55,7 @@
 !
       ipad  = 0         ! no memory padding (x)
       jpad  = 0         ! no memory padding (y)
+      cteS  = 0.1       ! Smagorinsky constant
 !
       open(15,FILE='bgk.input',STATUS='old')
       read(15,parameters)
@@ -69,7 +70,7 @@
       m1 = m+1
       n1 = n+1
 !
-! default value: volume forcing along x
+! volume forcing along x
 !
       u0x = zero
       u0y = zero
