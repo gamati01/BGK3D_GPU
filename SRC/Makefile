@@ -44,6 +44,7 @@ ifdef NVIDIA
  MULTI = -stdpar=multicore -Minfo=all -DMULTICORE
  DC  = -stdpar=gpu -DDC
  SCC = nvcc 
+ SFC = scorep-nvfortran  -DPGI
  SFC = nvfortran -DPGI
  FOPT = -O2 -Mnodepchk -Mcontiguous
  COPT = -O2
@@ -235,6 +236,7 @@ OBJ2 = check_case.o \
        probe.o \
        movef.o\
        save_raw.o\
+       save_vel.o\
        profile.o\
        git_info.o \
        draglift.o \

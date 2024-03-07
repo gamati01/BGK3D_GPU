@@ -14,13 +14,16 @@
 !       itime --> timestep
 !       i0     --> x coordinate
 !       j0     --> y coordinate
+!       k0     --> z coordinate
 !     OUTPUT
 !       none
 !     TODO
 !
 !     NOTES
-!       integer variables used: i,k,itime
-!       real variables used: rto,xj
+!       integer variables used: i,j,k,itime
+!       ifdef
+!            * NOSHIFT
+!            * DEBUG_1      
 !
 !     *****
 !=====================================================================
