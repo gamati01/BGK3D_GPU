@@ -175,6 +175,11 @@
        write(16,*) "WARNING: LES (Smagorinsky) enabled UNDER DEVELOPMENT"
 #endif
 !       
+#ifdef TGVFORCING
+       write(6,*)  "INFO: TGV forcing enabled"
+       write(16,*) "INFO: TGV forcing enabled"
+#endif
+
 ! get info about git version used right now       
        call git_info
 !

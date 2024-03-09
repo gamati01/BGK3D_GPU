@@ -16,8 +16,18 @@
 !
 !     NOTES
 !       integer variables used: i,j,k,itime
-!       real variables used: 
-!
+!       ifdefs
+!         * #ifdef FUSED
+!         * #ifdef NOSHIFT
+!         * #ifdef OFFLOAD
+!         * #ifdef OPENACC
+!         * #ifdef TGVFORCING
+!         * #ifdef LES
+!         * #ifdef CHANNEL
+!         * #ifdef FORCING_Y
+!         * #ifdef FORCING_Z
+!         * #ifdef DEBUG_2
+!         * #ifdef DEBUG_3
 !
 !     *****
 !====================================================
@@ -33,6 +43,8 @@
         integer, intent(IN) :: itime
         integer             :: i,j,k
 !
+        real(mykind) :: x,y,z
+        real(mykind) :: pi
         real(mykind) :: x01,x02,x03,x04,x05,x06,x07
         real(mykind) :: x08,x09,x10,x11,x12,x13
         real(mykind) :: x14,x15,x16,x17,x18,x19
@@ -55,6 +67,8 @@
         real(mykind) :: Pxx,Pyy,Pzz,Pxy,Pyx,Pxz,Pzx,Pyz,Pzy
         real(mykind) :: Ptotal,Ts
 !        
+                parameter(pi=3.141592653589793238462643383279)
+
 #ifdef FUSED
 !
 #ifdef DEBUG_3
@@ -124,6 +138,15 @@
            vx = (x01+x02+x03+x04+x05-x10-x11-x12-x13-x14)*rhoinv
            vy = (x03+x07+x08+x09+x12-x01-x10-x16-x17-x18)*rhoinv
            vz = (x04+x06+x07+x13+x18-x02-x09-x11-x15-x16)*rhoinv
+!           
+#ifdef TGVFORCING
+           z = (real(k,mykind)-0.5d0)/real(n,mykind)  ! 0<z<1
+           y = (real(j,mykind)-0.5d0)/real(m,mykind)  ! 0<y<1
+           x = (real(i,mykind)-0.5d0)/real(l,mykind)  ! 0<x<1
+           vx = vx + 0.001*(0.10d0*cos(2*pi*x)*sin(2*pi*y)*sin(2*pi*z))
+           vy = vy - 0.001*(0.05d0*sin(2*pi*x)*cos(2*pi*y)*sin(2*pi*z))
+           vz = vz - 0.001*(0.05d0*sin(2*pi*x)*sin(2*pi*y)*cos(2*pi*z))
+#endif
 
 #ifdef DEBUG_3
            write(41,3131) i+offset(1),j+offset(2), obs(i,j),   & 
