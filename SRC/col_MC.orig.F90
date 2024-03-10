@@ -53,7 +53,7 @@
         real(mykind) :: e14,e15,e16,e17,e18,e19
         real(mykind) :: n01,n02,n03,n04,n05,n06,n07
         real(mykind) :: n08,n09,n10,n11,n12,n13
-        real(mykind) :: n14,n15,n16,n17,n18
+        real(mykind) :: n14,n15,n16,n17,n18,n19
         real(mykind) :: rho,rhoinv,vx,vy,vz
         real(mykind) :: vx2,vy2,vz2,vsq
         real(mykind) :: rp1,rp2,rp0
@@ -237,70 +237,143 @@
            n16 = x16-e16
            n17 = x17-e17
            n18 = x18-e18
+           n19 = x19-e19
 !
            !
 ! compute Pij (six terms)
-           Pxx = n01 + &
-                 n02 + &
-                 n03 + &
-                 n04 + &
-                 n05 + &
-                 n10 + &
-                 n11 + &
-                 n12 + &
-                 n13 + &
-                 n14 
+           Pxx = cx(01)*cx(01)*n01 + &
+                 cx(02)*cx(02)*n02 + &
+                 cx(03)*cx(03)*n03 + &
+                 cx(04)*cx(04)*n04 + &
+                 cx(05)*cx(05)*n05 + &
+                 cx(06)*cx(06)*n06 + &
+                 cx(07)*cx(07)*n07 + &
+                 cx(08)*cx(08)*n08 + &
+                 cx(09)*cx(09)*n09 + &
+                 cx(10)*cx(10)*n10 + &
+                 cx(11)*cx(11)*n11 + &
+                 cx(12)*cx(12)*n12 + &
+                 cx(13)*cx(13)*n13 + &
+                 cx(14)*cx(14)*n14 + &
+                 cx(15)*cx(15)*n15 + &
+                 cx(16)*cx(16)*n16 + &
+                 cx(17)*cx(17)*n17 + &
+                 cx(18)*cx(18)*n18 + &
+                 cx(19)*cx(19)*n19
 !
-           Pyy = n01 + &
-                 n03 + &
-                 n07 + &
-                 n08 + &
-                 n09 + &
-                 n10 + &
-                 n12 + &
-                 n16 + &
-                 n17 + &
-                 n18 
+           Pyy = cy(01)*cy(01)*n01 + &
+                 cy(02)*cy(02)*n02 + &
+                 cy(03)*cy(03)*n03 + &
+                 cy(04)*cy(04)*n04 + &
+                 cy(05)*cy(05)*n05 + &
+                 cy(06)*cy(06)*n06 + &
+                 cy(07)*cy(07)*n07 + &
+                 cy(08)*cy(08)*n08 + &
+                 cy(09)*cy(09)*n09 + &
+                 cy(10)*cy(10)*n10 + &
+                 cy(11)*cy(11)*n11 + &
+                 cy(12)*cy(12)*n12 + &
+                 cy(13)*cy(13)*n13 + &
+                 cy(14)*cy(14)*n14 + &
+                 cy(15)*cy(15)*n15 + &
+                 cy(16)*cy(16)*n16 + &
+                 cy(17)*cy(17)*n17 + &
+                 cy(18)*cy(18)*n18 + &
+                 cy(19)*cy(19)*n19
 !
-           Pzz = n02 + &
-                 n04 + &
-                 n06 + &
-                 n07 + &
-                 n09 + &
-                 n11 + &
-                 n13 + &
-                 n15 + &
-                 n16 + &
-                 n18 
+           Pzz = cz(01)*cz(01)*n01 + &
+                 cz(02)*cz(02)*n02 + &
+                 cz(03)*cz(03)*n03 + &
+                 cz(04)*cz(04)*n04 + &
+                 cz(05)*cz(05)*n05 + &
+                 cz(06)*cz(06)*n06 + &
+                 cz(07)*cz(07)*n07 + &
+                 cz(08)*cz(08)*n08 + &
+                 cz(09)*cz(09)*n09 + &
+                 cz(10)*cz(10)*n10 + &
+                 cz(11)*cz(11)*n11 + &
+                 cz(12)*cz(12)*n12 + &
+                 cz(13)*cz(13)*n13 + &
+                 cz(14)*cz(14)*n14 + &
+                 cz(15)*cz(15)*n15 + &
+                 cz(16)*cz(16)*n16 + &
+                 cz(17)*cz(17)*n17 + &
+                 cz(18)*cz(18)*n18 + &
+                 cz(19)*cz(19)*n19
 !
-           Pxz = -n02 &
-                 +n04 &
-                 +n11 &
-                 -n13 
+           Pxz = cx(01)*cz(01)*n01 + &
+                 cx(02)*cz(02)*n02 + &
+                 cx(03)*cz(03)*n03 + &
+                 cx(04)*cz(04)*n04 + &
+                 cx(05)*cz(05)*n05 + &
+                 cx(06)*cz(06)*n06 + &
+                 cx(07)*cz(07)*n07 + &
+                 cx(08)*cz(08)*n08 + &
+                 cx(09)*cz(09)*n09 + &
+                 cx(10)*cz(10)*n10 + &
+                 cx(11)*cz(11)*n11 + &
+                 cx(12)*cz(12)*n12 + &
+                 cx(13)*cz(13)*n13 + &
+                 cx(14)*cz(14)*n14 + &
+                 cx(15)*cz(15)*n15 + &
+                 cx(16)*cz(16)*n16 + &
+                 cx(17)*cz(17)*n17 + &
+                 cx(18)*cz(18)*n18 + &
+                 cx(19)*cz(19)*n19
 !
-           Pxy = -n01 &
-                 +n03 &
-                 +n10 &
-                 -n12 
+           Pxy = cx(01)*cy(01)*n01 + &
+                 cx(02)*cy(02)*n02 + &
+                 cx(03)*cy(03)*n03 + &
+                 cx(04)*cy(04)*n04 + &
+                 cx(05)*cy(05)*n05 + &
+                 cx(06)*cy(06)*n06 + &
+                 cx(07)*cy(07)*n07 + &
+                 cx(08)*cy(08)*n08 + &
+                 cx(09)*cy(09)*n09 + &
+                 cx(10)*cy(10)*n10 + &
+                 cx(11)*cy(11)*n11 + &
+                 cx(12)*cy(12)*n12 + &
+                 cx(13)*cy(13)*n13 + &
+                 cx(14)*cy(14)*n14 + &
+                 cx(15)*cy(15)*n15 + &
+                 cx(16)*cy(16)*n16 + &
+                 cx(17)*cy(17)*n17 + &
+                 cx(18)*cy(18)*n18 + &
+                 cx(19)*cy(19)*n19
 !
-           Pyz = +n07 &
-                 -n09 &
-                 +n16 &
-                 -n18 
+           Pyz = cy(01)*cz(01)*n01 + &
+                 cy(02)*cz(02)*n02 + &
+                 cy(03)*cz(03)*n03 + &
+                 cy(04)*cz(04)*n04 + &
+                 cy(05)*cz(05)*n05 + &
+                 cy(06)*cz(06)*n06 + &
+                 cy(07)*cz(07)*n07 + &
+                 cy(08)*cz(08)*n08 + &
+                 cy(09)*cz(09)*n09 + &
+                 cy(10)*cz(10)*n10 + &
+                 cy(11)*cz(11)*n11 + &
+                 cy(12)*cz(12)*n12 + &
+                 cy(13)*cz(13)*n13 + &
+                 cy(14)*cz(14)*n14 + &
+                 cy(15)*cz(15)*n15 + &
+                 cy(16)*cz(16)*n16 + &
+                 cy(17)*cz(17)*n17 + &
+                 cy(18)*cz(18)*n18 + &
+                 cy(19)*cz(19)*n19
 !
-           Pyx = Pxy
-           Pzx = Pxz
-           Pzy = Pyz
+                 Pyx = Pxy
+                 Pzx = Pxz
+                 Pzy = Pyz
 !           
 ! calculate Pi total
-           Ptotal =sqrt((Pxx)**2 + (Pyy)**2 + (Pyy)**2 + &
-                        (2.0*Pxy*Pyx)                  + &
-                        (2.0*Pxz*Pzx)                  + &
-                        (2.0*Pyz*Pzy))
+                 Ptotal =sqrt((Pxx)**2 + (Pyy)**2 + (Pyy)**2 + &
+                              (2.0*Pxy*Pyx)                  + &
+                              (2.0*Pxz*Pzx)                  + &
+                              (2.0*Pyz*Pzy))
 !           
 ! adding turbulent viscosity
-           Ts = 1/(2*omega1) + sqrt(18*(cteS)**2 *Ptotal+(1/omega1)**2)/2
-           omega = 1/Ts
+                 Ts = 1/(2*omega1) + sqrt(18*(cteS)**2 *Ptotal+(1/omega1)**2)/2
+                 omega = 1/Ts
 !
 #endif                  
 !

@@ -240,67 +240,67 @@
 !
            !
 ! compute Pij (six terms)
-           Pxx = n01 + &
-                 n02 + &
-                 n03 + &
-                 n04 + &
-                 n05 + &
-                 n10 + &
-                 n11 + &
-                 n12 + &
-                 n13 + &
-                 n14 
+           Pxx = cx(01)*cx(01)*n01 + &
+                 cx(02)*cx(02)*n02 + &
+                 cx(03)*cx(03)*n03 + &
+                 cx(04)*cx(04)*n04 + &
+                 cx(05)*cx(05)*n05 + &
+                 cx(10)*cx(10)*n10 + &
+                 cx(11)*cx(11)*n11 + &
+                 cx(12)*cx(12)*n12 + &
+                 cx(13)*cx(13)*n13 + &
+                 cx(14)*cx(14)*n14 
 !
-           Pyy = n01 + &
-                 n03 + &
-                 n07 + &
-                 n08 + &
-                 n09 + &
-                 n10 + &
-                 n12 + &
-                 n16 + &
-                 n17 + &
-                 n18 
+           Pyy = cy(01)*cy(01)*n01 + &
+                 cy(03)*cy(03)*n03 + &
+                 cy(07)*cy(07)*n07 + &
+                 cy(08)*cy(08)*n08 + &
+                 cy(09)*cy(09)*n09 + &
+                 cy(10)*cy(10)*n10 + &
+                 cy(12)*cy(12)*n12 + &
+                 cy(16)*cy(16)*n16 + &
+                 cy(17)*cy(17)*n17 + &
+                 cy(18)*cy(18)*n18 
 !
-           Pzz = n02 + &
-                 n04 + &
-                 n06 + &
-                 n07 + &
-                 n09 + &
-                 n11 + &
-                 n13 + &
-                 n15 + &
-                 n16 + &
-                 n18 
+           Pzz = cz(02)*cz(02)*n02 + &
+                 cz(04)*cz(04)*n04 + &
+                 cz(06)*cz(06)*n06 + &
+                 cz(07)*cz(07)*n07 + &
+                 cz(09)*cz(09)*n09 + &
+                 cz(11)*cz(11)*n11 + &
+                 cz(13)*cz(13)*n13 + &
+                 cz(15)*cz(15)*n15 + &
+                 cz(16)*cz(16)*n16 + &
+                 cz(18)*cz(18)*n18 
 !
-           Pxz = -n02 &
-                 +n04 &
-                 +n11 &
-                 -n13 
+           Pxz = cx(02)*cz(02)*n02 + &
+                 cx(04)*cz(04)*n04 + &
+                 cx(11)*cz(11)*n11 + &
+                 cx(13)*cz(13)*n13 
 !
-           Pxy = -n01 &
-                 +n03 &
-                 +n10 &
-                 -n12 
+           Pxy = cx(01)*cy(01)*n01 + &
+                 cx(03)*cy(03)*n03 + &
+                 cx(10)*cy(10)*n10 + &
+                 cx(12)*cy(12)*n12 
 !
-           Pyz = +n07 &
-                 -n09 &
-                 +n16 &
-                 -n18 
+           Pyz = cy(07)*cz(07)*n07 + &
+                 cy(09)*cz(09)*n09 + &
+                 cy(16)*cz(16)*n16 + &
+                 cy(18)*cz(18)*n18 
 !
-           Pyx = Pxy
-           Pzx = Pxz
-           Pzy = Pyz
+                 Pyx = Pxy
+                 Pzx = Pxz
+                 Pzy = Pyz
 !           
 ! calculate Pi total
-           Ptotal =sqrt((Pxx)**2 + (Pyy)**2 + (Pyy)**2 + &
-                        (2.0*Pxy*Pyx)                  + &
-                        (2.0*Pxz*Pzx)                  + &
-                        (2.0*Pyz*Pzy))
+                 Ptotal =sqrt((Pxx)**2 + (Pyy)**2 + (Pyy)**2 + &
+                              (2.0*Pxy*Pyx)                  + &
+                              (2.0*Pxz*Pzx)                  + &
+                              (2.0*Pyz*Pzy))
 !           
 ! adding turbulent viscosity
-           Ts = 1/(2*omega1) + sqrt(18*(cteS)**2 *Ptotal+(1/omega1)**2)/2
-           omega = 1/Ts
+                 Ts = 1/(2*omega1) + sqrt(18*(cteS)**2 *Ptotal+(1/omega1)**2)/2
+                 omega = 1/Ts
 !
 #endif                  
 !
