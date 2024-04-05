@@ -57,7 +57,8 @@
         real(mykind) ::  cte1
 #endif
 !
-        integer      :: ll, mm, nn
+        integer            :: ll, mm, nn
+        integer, parameter :: kappa=2       ! # armoniche
 !
         parameter(pi=3.141592653589793238462643383279)
 !
@@ -104,6 +105,10 @@
         yj = 0.0
         zj = 0.0
 !
+#ifdef TGV3D
+        print(6,*) "INF0: kappa =", kappa
+#endif
+!        
         do k = 0, n1
 #ifdef PERIODIC
            z = (real(k,mykind)-0.5d0)/real(nn,mykind)  ! 0<z<1 
@@ -119,9 +124,9 @@
 !                 
 #ifdef PERIODIC
 ! default TaylorGreen (2D)
-!                 xj = 0.1d0*sin(real(2,mykind)*pi*x)*cos(real(2,mykind)*pi*z)
-!                 yj = zero
-!                 zj =-0.1d0*cos(real(2,mykind)*pi*x)*sin(real(2,mykind)*pi*z)
+                 xj = 0.1d0*sin(real(2,mykind)*pi*x)*cos(real(2,mykind)*pi*z)
+                 yj = zero
+                 zj =-0.1d0*cos(real(2,mykind)*pi*x)*sin(real(2,mykind)*pi*z)
 # ifdef KVX
 ! if Kida overwrite....                 
                  xj = 0.1d0*sin(2*pi*x)*    & 
@@ -142,9 +147,9 @@
 !
 !
 ! Kajzer et al. (2014)              
-                 xj = 0.10d0*cos(2*pi*x)*sin(2*pi*y)*sin(2*pi*z)
-                 yj =-0.05d0*sin(2*pi*x)*cos(2*pi*y)*sin(2*pi*z)
-                 zj =-0.05d0*sin(2*pi*x)*sin(2*pi*y)*cos(2*pi*z)
+                 xj = 0.10d0*cos(2*kappa*pi*x)*sin(2*kappa*pi*y)*sin(2*kappa*pi*z)
+                 yj =-0.05d0*sin(2*kappa*pi*x)*cos(2*kappa*pi*y)*sin(2*kappa*pi*z)
+                 zj =-0.05d0*sin(2*kappa*pi*x)*sin(2*kappa*pi*y)*cos(2*kappa*pi*z)
 # endif
 #endif
 !

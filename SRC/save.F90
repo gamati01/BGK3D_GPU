@@ -34,15 +34,15 @@
       call SYSTEM_CLOCK(countF0, count_rate, count_max)
 !
 #ifdef VTK3D
-!      call vtk_3d_bin(itime)
       call save_vel(itime)
 !
 ! check
       call probe(itime,l/2,m/2,n/2)
 !      
-#else
-      call save_raw(itime)
 #endif
+!      
+!      call vtk_3d_bin(itime)
+!      call save_raw(itime)
 !
       call SYSTEM_CLOCK(countF1, count_rate, count_max)
       call time(tcountF1)
