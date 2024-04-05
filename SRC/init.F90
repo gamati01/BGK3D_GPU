@@ -58,7 +58,7 @@
 #endif
 !
         integer            :: ll, mm, nn
-        integer, parameter :: kappa=2       ! # armoniche
+        integer, parameter :: kappa=4       ! # armoniche
 !
         parameter(pi=3.141592653589793238462643383279)
 !
@@ -106,7 +106,7 @@
         zj = 0.0
 !
 #ifdef TGV3D
-        print(6,*) "INF0: kappa =", kappa
+        write(6,*) "INF0: kappa =", kappa
 #endif
 !        
         do k = 0, n1
