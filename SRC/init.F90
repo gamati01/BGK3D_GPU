@@ -58,7 +58,7 @@
 #endif
 !
         integer            :: ll, mm, nn
-        integer, parameter :: kappa=4       ! # armoniche
+        real(mykind), parameter :: kappa=1.0       ! # armoniche (to check)
 !
         parameter(pi=3.141592653589793238462643383279)
 !
@@ -107,6 +107,7 @@
 !
 #ifdef TGV3D
         write(6,*) "INF0: kappa =", kappa
+        write(6,*) "INF0: u0    =", u0
 #endif
 !        
         do k = 0, n1
@@ -147,9 +148,9 @@
 !
 !
 ! Kajzer et al. (2014)              
-                 xj = 0.10d0*cos(2*kappa*pi*x)*sin(2*kappa*pi*y)*sin(2*kappa*pi*z)
-                 yj =-0.05d0*sin(2*kappa*pi*x)*cos(2*kappa*pi*y)*sin(2*kappa*pi*z)
-                 zj =-0.05d0*sin(2*kappa*pi*x)*sin(2*kappa*pi*y)*cos(2*kappa*pi*z)
+                 xj =       u0*cos(2*kappa*pi*x)*sin(2*kappa*pi*y)*sin(2*kappa*pi*z)
+                 yj =-0.5d0*u0*sin(2*kappa*pi*x)*cos(2*kappa*pi*y)*sin(2*kappa*pi*z)
+                 zj =-0.5d0*u0*sin(2*kappa*pi*x)*sin(2*kappa*pi*y)*cos(2*kappa*pi*z)
 # endif
 #endif
 !
