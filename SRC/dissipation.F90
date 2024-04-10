@@ -43,6 +43,7 @@
        real(mykind):: cte1
        real(mykind):: u_y, u_z, v_x, v_z, w_x, w_y
        real(mykind):: mean_u, mean_v, mean_w
+       real(mykind):: dissip, turbke, kolmog
 !
 #ifdef NOSHIFT
        cte1 = zero
@@ -116,40 +117,49 @@
        mean_w = mean_w/float(l+2)/float(m+2)/float(n+2)       
 !
 ! compute energy dissipation / turbulent kinetic energy
-! may br not the most efficent       
+! maybe not the most efficent way....      
        do k=1,n
          do j=1,m
             do i=1,l
 
 ! compute u_y
-                u_y = vel_u(i,j+1,k)-vel_u(i,j-1,k)
+                u_y = 0.5*(vel_u(i,j+1,k)-vel_u(i,j-1,k))
 ! compute u_z
-                u_z = vel_u(i,j,k+1)-vel_u(i,j,k-1)
+                u_z = 0.5*(vel_u(i,j,k+1)-vel_u(i,j,k-1))
 ! compute v_x
-                v_x = vel_v(i+1,j,k)-vel_v(i-1,j,k)
+                v_x = 0.5*(vel_v(i+1,j,k)-vel_v(i-1,j,k))
 ! compute v_z
-                v_z = vel_v(i,j,k+1)-vel_v(i,j,k-1)
+                v_z = 0.5*(vel_v(i,j,k+1)-vel_v(i,j,k-1))
 ! compute w_x
-                w_x = vel_w(i+1,j,k)-vel_w(i-1,j,k)
+                w_x = 0.5*(vel_w(i+1,j,k)-vel_w(i-1,j,k))
 ! compute w_y
-                w_y = vel_w(i,j+1,k)-vel_w(i,j-1,k)
-
-                diss = diss + (v_x - u_y)**2 +  & 
-                              (u_z - w_x)**2 +  &
-                              (w_y - v_z)**2 
+                w_y = 0.5*(vel_w(i,j+1,k)-vel_w(i,j-1,k))
+!
+! CHECK SIGN....
+                diss = diss + (v_x + u_y)**2 +  & 
+                              (u_z + w_x)**2 +  &
+                              (w_y + v_z)**2 
+!                      
                 tke = tke + 0.5*((vel_u(i,j,k)-mean_u)**2 +  & 
                                  (vel_v(i,j,k)-mean_v)**2 +  &
                                  (vel_w(i,j,k)-mean_w)**2)     
              enddo
           enddo
        enddo
-
-       write(77,1004) itime, diss/float(l)/float(m)/float(n), & 
-                              tke/float(l)/float(m)/float(n)    
+!
+!# time, dissipation, turbulent kinetic energy
+       dissip = 0.5*svisc*diss/float(l)/float(m)/float(n)       ! dissipation
+       turbke = tke/float(l)/float(m)/float(n)                  ! turbulent kinetic energy
+       kolmog = ((svisc**3)/dissip)**(0.25)                     ! kolmogorov microscale
+!
+       write(77,1004) itime,                                     &
+                      dissip,                                    &
+                      turbke,                                    &
+                      kolmog
        flush(77)
 !
 #ifdef DEBUG_1
-       write(6,*) "DEBUG1: Exiting from sub. dissipation", cte1
+       write(6,*) "DEBUG1: Exiting from sub. dissipation"
 #endif
 !
 ! formats...
@@ -157,6 +167,6 @@
 1001   format(" Timestep ",i8)
 1002   format("       mean rho ",1(e14.6,1x))
 1003   format("       mean vel ",4(e14.6,1x))
-1004   format(i8,2(e14.6,1x))
+1004   format(i8,3(e14.6,1x))
 !
        end subroutine dissipation

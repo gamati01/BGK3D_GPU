@@ -37,7 +37,7 @@
       call save_vel(itime)
 !
 ! check
-      call probe(itime,l/2,m/2,n/2)
+!      call probe(itime,l/2,m/2,n/2)
 !      
 #endif
 !      

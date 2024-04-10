@@ -107,7 +107,7 @@
 !
 #ifdef TGV3D
         write(6,*) "INF0: kappa =", kappa
-        write(6,*) "INF0: u0    =", u0
+        write(6,*) "INF0: u0    =", u00
 #endif
 !        
         do k = 0, n1
@@ -148,9 +148,9 @@
 !
 !
 ! Kajzer et al. (2014)              
-                 xj =       u0*cos(2*kappa*pi*x)*sin(2*kappa*pi*y)*sin(2*kappa*pi*z)
-                 yj =-0.5d0*u0*sin(2*kappa*pi*x)*cos(2*kappa*pi*y)*sin(2*kappa*pi*z)
-                 zj =-0.5d0*u0*sin(2*kappa*pi*x)*sin(2*kappa*pi*y)*cos(2*kappa*pi*z)
+                 xj =       u00*cos(2*kappa*pi*x)*sin(2*kappa*pi*y)*sin(2*kappa*pi*z)
+                 yj =-0.5d0*u00*sin(2*kappa*pi*x)*cos(2*kappa*pi*y)*sin(2*kappa*pi*z)
+                 zj =-0.5d0*u00*sin(2*kappa*pi*x)*sin(2*kappa*pi*y)*cos(2*kappa*pi*z)
 # endif
 #endif
 !

@@ -70,7 +70,7 @@
            call diagno(itime)
 #ifdef TGV3D
            call dissipation(itime)
-           call probe(itime,l/2,m/2,n/2)
+           call probe(itime,l/3,m/5,n/3)
 #else           
            call probe(itime,l/2,m/2,n/2)
 #endif

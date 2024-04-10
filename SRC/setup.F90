@@ -112,11 +112,9 @@
 ! 
 ! test case
 #ifdef TGV
-# ifdef TGV3D
-         write(6,*) " Test Case: Taylor-Green Vortices (3D)"
-# else
          write(6,*) " Test Case: Taylor-Green Vortices (2D)"
-# endif
+#elif TGV3D
+         write(6,*) " Test Case: Taylor-Green Vortices (3D)"
 #elif POF  
          write(6,*) " Test Case: Poiseuille Flow"
 #elif VKS  
