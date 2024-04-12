@@ -140,14 +140,16 @@
            vz = (x04+x06+x07+x13+x18-x02-x09-x11-x15-x16)*rhoinv
 !           
 #ifdef TGVFORCING
+!shift equilibrium velocity           
            z = (real(k,mykind)-0.5d0)/real(n,mykind)  ! 0<z<1
            y = (real(j,mykind)-0.5d0)/real(m,mykind)  ! 0<y<1
            x = (real(i,mykind)-0.5d0)/real(l,mykind)  ! 0<x<1
-           vx = vx + 0.001*(0.10d0*cos(2*pi*x)*sin(2*pi*y)*sin(2*pi*z))
-           vy = vy - 0.001*(0.05d0*sin(2*pi*x)*cos(2*pi*y)*sin(2*pi*z))
-           vz = vz - 0.001*(0.05d0*sin(2*pi*x)*sin(2*pi*y)*cos(2*pi*z))
+           vx = vx + 0.0001*(    u00*cos(2*pi*x)*sin(2*pi*y)*sin(2*pi*z))
+           vy = vy - 0.0001*(0.5*u00*sin(2*pi*x)*cos(2*pi*y)*sin(2*pi*z))
+           vz = vz - 0.0001*(    u00*sin(2*pi*x)*sin(2*pi*y)*cos(2*pi*z))
+           stop
 #endif
-
+!
 #ifdef DEBUG_3
            write(41,3131) i+offset(1),j+offset(2), obs(i,j),   & 
                         vx,vy,rho
@@ -238,7 +240,7 @@
            n17 = x17-e17
            n18 = x18-e18
 !
-           !
+!
 ! compute Pij (six terms)
            Pxx = n01 + &
                  n02 + &
@@ -322,6 +324,16 @@
 # endif
 #else
 ! skip this subroutine (ORIGINAL version)
+#endif
+!
+#ifdef TGVFORCING_TRY
+           z = (real(k,mykind)-0.5d0)/real(n,mykind)  ! 0<z<1
+           y = (real(j,mykind)-0.5d0)/real(m,mykind)  ! 0<y<1
+           x = (real(i,mykind)-0.5d0)/real(l,mykind)  ! 0<x<1
+           forcex = +0.00005*(2.0*u00*sin((2*pi*x)+(2*pi*y)+(2*pi*z)))
+           forcey = -0.00005*(    u00*sin((2*pi*x)+(2*pi*y)+(2*pi*z)))
+           forcez = -0.00005*(    u00*sin((2*pi*x)+(2*pi*y)+(2*pi*z)))
+!           write(6,*) forcex, forcey, forcez
 #endif
 !
 ! loop on populations

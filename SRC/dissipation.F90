@@ -136,9 +136,9 @@
                 w_y = 0.5*(vel_w(i,j+1,k)-vel_w(i,j-1,k))
 !
 ! CHECK SIGN....
-                diss = diss + (v_x + u_y)**2 +  & 
-                              (u_z + w_x)**2 +  &
-                              (w_y + v_z)**2 
+                diss = diss + ((v_x + u_y)**2 +  & 
+                               (u_z + w_x)**2 +  &
+                               (w_y + v_z)**2) 
 !                      
                 tke = tke + 0.5*((vel_u(i,j,k)-mean_u)**2 +  & 
                                  (vel_v(i,j,k)-mean_v)**2 +  &
@@ -148,14 +148,15 @@
        enddo
 !
 !# time, dissipation, turbulent kinetic energy
-       dissip = 0.5*svisc*diss/float(l)/float(m)/float(n)       ! dissipation
+       dissip = (0.5*svisc*diss)/float(l)/float(m)/float(n)     ! dissipation
        turbke = tke/float(l)/float(m)/float(n)                  ! turbulent kinetic energy
        kolmog = ((svisc**3)/dissip)**(0.25)                     ! kolmogorov microscale
 !
        write(77,1004) itime,                                     &
                       dissip,                                    &
                       turbke,                                    &
-                      kolmog
+                      kolmog,                                    &
+                      ((svisc**2)/(0.5*diss))**(0.25)
        flush(77)
 !
 #ifdef DEBUG_1
@@ -167,6 +168,6 @@
 1001   format(" Timestep ",i8)
 1002   format("       mean rho ",1(e14.6,1x))
 1003   format("       mean vel ",4(e14.6,1x))
-1004   format(i8,3(e14.6,1x))
+1004   format(i8,4(e14.6,1x))
 !
        end subroutine dissipation

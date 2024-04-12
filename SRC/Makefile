@@ -184,6 +184,12 @@ ifdef KVX
  CHECK4=KVX
 endif
 #
+# Homogenous Isotropic Turbulence  (not forced)
+ifdef HIT
+ PREPROC =-DPERIODIC -DTGV3D
+ CHECK4=HIT
+endif
+#
 #----------------------------------------------
 # module & subroutines
 #----------------------------------------------
