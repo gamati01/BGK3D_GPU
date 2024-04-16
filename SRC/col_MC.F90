@@ -295,7 +295,7 @@
            Pzy = Pyz
 !           
 ! calculate Pi total
-           Ptotal =sqrt((Pxx)**2 + (Pyy)**2 + (Pyy)**2 + &
+           Ptotal =sqrt((Pxx)**2 + (Pyy)**2 + (Pzz)**2 + &
                         (2.0*Pxy*Pyx)                  + &
                         (2.0*Pxz*Pzx)                  + &
                         (2.0*Pyz*Pzy))
