@@ -187,6 +187,7 @@ endif
 # Homogenous Isotropic Turbulence  (not forced)
 ifdef HIT
  PREPROC =-DPERIODIC -DTGV3D
+ PREPROC =-DPERIODIC -DTGV3D -DVTK3D
  CHECK4=HIT
 endif
 #
@@ -239,6 +240,7 @@ OBJ2 = check_case.o \
        prof_i.o \
        diagno.o \
        dissipation.o \
+       dissipation2.o \
        probe.o \
        movef.o\
        save_raw.o\
