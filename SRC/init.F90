@@ -139,16 +139,16 @@
               stop
 # elif TGV3D
 ! Article by Emerson et al.              
-                 xj = 0.1d0*sin(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
-                 yj =-0.1d0*cos(2*pi*x)*sin(2*pi*y)*cos(2*pi*z)
+                 xj = u00*sin(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
+                 yj =-u00*cos(2*pi*x)*sin(2*pi*y)*cos(2*pi*z)
                  zj = zero
 
-                 crho = uno + ((0.1*0.1)/16.0)* & 
+                 crho = uno + ((u00*u00)/(16.0*3.0))* & 
                          (cos(4*pi*x)+cos(4*pi*y))*(cos(4*pi*z)+2)
 !
 ! Kajzer et al. (2014)              
 !                 xj =       u00*cos(2*kappa*pi*x)*sin(2*kappa*pi*y)*sin(2*kappa*pi*z)
-!                 yj =-0.5d0*u00*sin(2*kappa*pi*x)*cos(2*kappa*pi*y)*sin(2*kappa*pi*z)
+!                 yj =-(((0.5d0*u00*sin(2*kappa*pi*x)*cos(2*kappa*pi*y)*sin(2*kappa*pi*z)
 !                 zj =-0.5d0*u00*sin(2*kappa*pi*x)*sin(2*kappa*pi*y)*cos(2*kappa*pi*z)
 # endif
 #endif
