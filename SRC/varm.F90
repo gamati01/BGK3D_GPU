@@ -42,17 +42,19 @@
       real(mykind) :: cte1
 !
 #ifdef NOSHIFT
-       cte1 = zero
+      cte1 = zero
 #else
-       cte1 = uno
+      cte1 = uno
 #endif
 !
-      do j = 1, n
-         u(j)  = zero
-         w(j)  = zero
-         den(j)= zero
+      do k = 1, n
+         u(k)  = zero
+         w(k)  = zero
+         den(k)= zero
       enddo
 !      
+!$acc parallel reduction(+:u,w,v)
+!$acc loop independent collapse(3)
       do k = 1,n
       do j = 1,m
          do i = 1, l
@@ -67,36 +69,40 @@
 !
             rhoinv = uno/rho
 !            
-            den(j) = den(j) + rho 
+            den(k) = den(k) + rho 
 !
-                u(k) = u(k) &
-                       +( a01(i,j,k)+a02(i,j,k)+a03(i,j,k) &
-                         +a04(i,j,k)+a05(i,j,k) &
-                         -a10(i,j,k)-a11(i,j,k)-a12(i,j,k) &
-                         -a13(i,j,k)-a14(i,j,k) ) * rhoinv
+            u(k) = u(k) &
+                  +( a01(i,j,k)+a02(i,j,k)+a03(i,j,k) &
+                    +a04(i,j,k)+a05(i,j,k)            &
+                    -a10(i,j,k)-a11(i,j,k)-a12(i,j,k) &
+                    -a13(i,j,k)-a14(i,j,k) ) * rhoinv
 !
-                w(k) = w(k) &
-                       +( a03(i,j,k)+a07(i,j,k)+a08(i,j,k) &
-                         +a09(i,j,k)+a12(i,j,k) &
-                         -a01(i,j,k)-a10(i,j,k)-a16(i,j,k) &
-                         -a17(i,j,k)-a18(i,j,k) )*rhoinv
+            w(k) = w(k) &
+                  +( a03(i,j,k)+a07(i,j,k)+a08(i,j,k) &
+                    +a09(i,j,k)+a12(i,j,k)            &
+                    -a01(i,j,k)-a10(i,j,k)-a16(i,j,k) &
+                    -a17(i,j,k)-a18(i,j,k) )*rhoinv
 !
-                v(k) = v(k) &
-                       +( a04(i,j,k)+a06(i,j,k)+a07(i,j,k) &
-                         +a13(i,j,k)+a18(i,j,k) &
-                         -a02(i,j,k)-a09(i,j,k)-a11(i,j,k) &
-                         -a15(i,j,k)-a16(i,j,k) )*rhoinv
+            v(k) = v(k) &
+                   +( a04(i,j,k)+a06(i,j,k)+a07(i,j,k) &
+                     +a13(i,j,k)+a18(i,j,k)            &
+                     -a02(i,j,k)-a09(i,j,k)-a11(i,j,k) &
+                     -a15(i,j,k)-a16(i,j,k) )*rhoinv
 !
          end do
          end do
       end do
+!$acc end parallel
 !
-      rvol = 1.0/(float(l))
+      rvol = 1.0/(float(l)*float(m))
 !
       write(62,1005) itime
-      do j=1,m
-         write(62,1003) j+offset(2), & 
-              u(j)*rvol ,w(j)*rvol, den(j)*rvol
+      do k=1,n
+         write(62,1003) float(k)-0. , & 
+                        u(k)*rvol,     & 
+                        w(k)*rvol,     & 
+                        v(k)*rvol,     & 
+                        den(k)*rvol
       end do
       write(62,'(a1)')
       write(62,'(a1)')
@@ -114,7 +120,7 @@
       endif
 # endif
 !
-1003    format(i5,3(e14.6,1x))
+1003    format(5(e14.6,1x))
 1005    format("# t=",i7)
 !
        end subroutine varm
