@@ -179,9 +179,12 @@
        write(6,*)  "INFO: TGV forcing enabled"
        write(16,*) "INFO: TGV forcing enabled"
 #endif
-
+!
 ! get info about git version used right now       
        call git_info
+!
+! get info about make options used right now       
+       call make_info
 !
 #ifdef DEBUG_1
        if(myrank == 0) then
