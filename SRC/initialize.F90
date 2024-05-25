@@ -109,6 +109,7 @@
              itstart = 0
              call init(init_v)
 #ifdef OPENACC
+! skip
 #else
              call diagno(itstart)
 #endif
@@ -116,9 +117,6 @@
              call prof_i(itstart,m/2,n/2)
              call prof_j(itstart,l/2,n/2)
              call prof_k(itstart,l/2,m/2)
-             call dissipation(itstart)
-             call probe(itstart,l/3,m/5,n/3)
-!
 #ifdef NO_BINARY
              call vtk_xy(itstart,n/2)
              call vtk_xz(itstart,m/2)

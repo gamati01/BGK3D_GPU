@@ -2,7 +2,7 @@
 # makefile BGK3D_GPU
 # Giorgio Amati, CASPUR 2000-2012
 # Giorgio Amati, CINECA 2013-202?
-#
+
 # targets:
 #
 #		<none> default ---> GPU code with do concurrent (nvfortran)
