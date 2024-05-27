@@ -76,7 +76,7 @@
            call probe(itime,l/2,m/2,n/2)
 #endif
 !           
-           call varm(itime)
+!           call varm(itime)
            call prof_i(itime,m/2,n/2)
            call prof_j(itime,l/2,n/2)
            call prof_k(itime,l/2,m/2)

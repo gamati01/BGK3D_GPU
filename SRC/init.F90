@@ -139,41 +139,41 @@
               stop
 # elif TGV3D
 ! Article by Emerson et al.              
-                 xj = 0.1d0*sin(2*pi*x)*cos(2*pi*y)*cos(2*pi*z)
-                 yj =-0.1d0*cos(2*pi*x)*sin(2*pi*y)*cos(2*pi*z)
+                 xj = u00*sin(due*pi*x)*cos(due*pi*y)*cos(due*pi*z)
+                 yj =-u00*cos(due*pi*x)*sin(due*pi*y)*cos(due*pi*z)
                  zj = zero
 
-                 crho = uno + ((0.1*0.1)/16.0)* & 
-                         (cos(4*pi*x)+cos(4*pi*y))*(cos(4*pi*z)+2)
+                 crho = uno + ((u00*u00)/(qua*qua*tre))* & 
+                         (cos(qua*pi*x)+cos(qua*pi*y))*(cos(qua*pi*z)+due)
 !
 ! Kajzer et al. (2014)              
 !                 xj =       u00*cos(2*kappa*pi*x)*sin(2*kappa*pi*y)*sin(2*kappa*pi*z)
-!                 yj =-0.5d0*u00*sin(2*kappa*pi*x)*cos(2*kappa*pi*y)*sin(2*kappa*pi*z)
+!                 yj =-(((0.5d0*u00*sin(2*kappa*pi*x)*cos(2*kappa*pi*y)*sin(2*kappa*pi*z)
 !                 zj =-0.5d0*u00*sin(2*kappa*pi*x)*sin(2*kappa*pi*y)*cos(2*kappa*pi*z)
 # endif
 #endif
 !
                  cvsq=xj*xj+yj*yj+zj*zj
 !
-                 cx01 = rf*( xj-yj   )+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)
-                 cx02 = rf*( xj   -zj)+qf*(3.0*(xj-zj)*(xj-zj)-cvsq)
-                 cx03 = rf*( xj+yj   )+qf*(3.0*(xj+yj)*(xj+yj)-cvsq)
-                 cx04 = rf*( xj   +zj)+qf*(3.0*(xj+zj)*(xj+zj)-cvsq)
-                 cx05 = rf*( xj      )+qf*(3.0*(xj   )*(xj   )-cvsq)
-                 cx06 = rf*(       zj)+qf*(3.0*(zj   )*(zj   )-cvsq)
-                 cx07 = rf*(    yj+zj)+qf*(3.0*(yj+zj)*(yj+zj)-cvsq)
-                 cx08 = rf*(    yj   )+qf*(3.0*(yj   )*(yj   )-cvsq)
-                 cx09 = rf*(    yj-zj)+qf*(3.0*(yj-zj)*(yj-zj)-cvsq)
-                 cx10 = rf*(-xj-yj   )+qf*(3.0*(xj+yj)*(xj+yj)-cvsq)
-                 cx11 = rf*(-xj   -zj)+qf*(3.0*(xj+zj)*(xj+zj)-cvsq)
-                 cx12 = rf*(-xj+yj   )+qf*(3.0*(xj-yj)*(xj-yj)-cvsq)
-                 cx13 = rf*(-xj   +zj)+qf*(3.0*(xj-zj)*(xj-zj)-cvsq)
-                 cx14 = rf*(-xj      )+qf*(3.0*(xj   )*(xj   )-cvsq)
-                 cx15 = rf*(      -zj)+qf*(3.0*(zj   )*(zj   )-cvsq)
-                 cx16 = rf*(   -yj-zj)+qf*(3.0*(yj+zj)*(yj+zj)-cvsq)
-                 cx17 = rf*(   -yj   )+qf*(3.0*(yj   )*(yj   )-cvsq)
-                 cx18 = rf*(   -yj+zj)+qf*(3.0*(yj-zj)*(yj-zj)-cvsq)
-                 cx19 = rf*(   0.0   )+qf*(3.0*( 0.0 )*( 0.0 )-cvsq)
+                 cx01 = rf*( xj-yj   )+qf*(tre*(xj-yj)*(xj-yj)-cvsq)
+                 cx02 = rf*( xj   -zj)+qf*(tre*(xj-zj)*(xj-zj)-cvsq)
+                 cx03 = rf*( xj+yj   )+qf*(tre*(xj+yj)*(xj+yj)-cvsq)
+                 cx04 = rf*( xj   +zj)+qf*(tre*(xj+zj)*(xj+zj)-cvsq)
+                 cx05 = rf*( xj      )+qf*(tre*(xj   )*(xj   )-cvsq)
+                 cx06 = rf*(       zj)+qf*(tre*(zj   )*(zj   )-cvsq)
+                 cx07 = rf*(    yj+zj)+qf*(tre*(yj+zj)*(yj+zj)-cvsq)
+                 cx08 = rf*(    yj   )+qf*(tre*(yj   )*(yj   )-cvsq)
+                 cx09 = rf*(    yj-zj)+qf*(tre*(yj-zj)*(yj-zj)-cvsq)
+                 cx10 = rf*(-xj-yj   )+qf*(tre*(xj+yj)*(xj+yj)-cvsq)
+                 cx11 = rf*(-xj   -zj)+qf*(tre*(xj+zj)*(xj+zj)-cvsq)
+                 cx12 = rf*(-xj+yj   )+qf*(tre*(xj-yj)*(xj-yj)-cvsq)
+                 cx13 = rf*(-xj   +zj)+qf*(tre*(xj-zj)*(xj-zj)-cvsq)
+                 cx14 = rf*(-xj      )+qf*(tre*(xj   )*(xj   )-cvsq)
+                 cx15 = rf*(      -zj)+qf*(tre*(zj   )*(zj   )-cvsq)
+                 cx16 = rf*(   -yj-zj)+qf*(tre*(yj+zj)*(yj+zj)-cvsq)
+                 cx17 = rf*(   -yj   )+qf*(tre*(yj   )*(yj   )-cvsq)
+                 cx18 = rf*(   -yj+zj)+qf*(tre*(yj-zj)*(yj-zj)-cvsq)
+                 cx19 = rf*(   0.0   )+qf*(tre*( 0.0 )*( 0.0 )-cvsq)
 
                  a01(i,j,k) = crho*p2*(cte1+cx01)
                  a02(i,j,k) = crho*p2*(cte1+cx02)

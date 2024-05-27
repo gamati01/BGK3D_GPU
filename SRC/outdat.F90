@@ -65,7 +65,9 @@
       write(16,*) '************** Further check ****************'
       write(16,*) 'zero         =', zero, zero_qp
       write(16,*) 'uno          =', uno, uno_qp
+      write(16,*) 'due          =', due, due_qp
       write(16,*) 'tre          =', tre, tre_qp
+      write(16,*) 'qua          =', qua, qua_qp
       write(16,*) 'rf           =', rf, rf_qp 
       write(16,*) 'qf           =', qf, qf_qp 
       write(16,*) 'p0           =', p0, p0_qp 
