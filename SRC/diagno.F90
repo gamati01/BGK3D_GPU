@@ -68,6 +68,9 @@
 !$omp target update from(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, &
 !$omp&                   a11,a12,a13,a14,a15,a16,a17,a18,a19)
 #endif
+!       
+!$acc parallel reduction(+:rtot,xtot,ytot,ztot,stot)
+!$acc loop independent collapse(3)
        do k=1,n
          do j=1,m
             do i=1,l
@@ -111,6 +114,7 @@
             enddo
          enddo
        enddo
+!$acc end parallel
 !
        rtot = (rtot/float(l))/float(m)/float(n)
        xtot = (xtot/float(l))/float(m)/float(n)
