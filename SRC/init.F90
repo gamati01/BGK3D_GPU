@@ -143,6 +143,7 @@
                  yj =-u00*cos(due*pi*x)*sin(due*pi*y)*cos(due*pi*z)
                  zj = zero
 
+!                  crho = uno + ((u00*u00)/(qua*qua))* & 
                  crho = uno + ((u00*u00)/(qua*qua*tre))* & 
                          (cos(qua*pi*x)+cos(qua*pi*y))*(cos(qua*pi*z)+due)
 !

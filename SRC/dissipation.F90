@@ -56,6 +56,8 @@
         real(mykind) :: diss, tke, kolmog
         real(mykind) :: dt, dx
 !        
+        parameter(pi=3.141592653589793238462643383279)
+!        
 !
 #ifdef NOSHIFT
         cte1 = zero
@@ -64,10 +66,10 @@
 #endif
         cte0 = uno - cte1
 !
-        dx = (2.0*3.141592)/float(l)
+        dx = (due*pi)/real(l,mykind)
         dt = dx*u00
-        diss = 0.0
-        tke = 0.0
+        diss = zero
+        tke = zero
 !        
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd collapse(3)
@@ -252,11 +254,11 @@
         !           
         ! calculate Pi total
            Ptotal =(Pxx)**2 + (Pyy)**2 + (Pzz)**2 + &
-                   (2.0*Pxy*Pyx)                  + &
-                   (2.0*Pxz*Pzx)                  + &
-                   (2.0*Pyz*Pzy)
+                   (due*Pxy*Pyx)                  + &
+                   (due*Pxz*Pzx)                  + &
+                   (due*Pyz*Pzy)
         !           
-           diss = diss + 2.0*svisc*Ptotal
+           diss = diss + due*svisc*Ptotal
         end do
         #ifdef OFFLOAD
         end do

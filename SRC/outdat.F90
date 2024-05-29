@@ -33,7 +33,19 @@
 !
       integer, INTENT(in) :: itfin,itstart,ivtim
       integer, INTENT(in) :: isignal,itsave,icheck
+      real(mykind):: Re, dx, pi
 !
+      parameter(pi=3.141592653589793238462643383279)
+!
+#ifdef HIT
+      dx = due*pi/real(l,mykind)
+      Re = u0/(dx*svisc)+u00/(dx*svisc)
+#elif POF
+      Re = u0*real(n,mykind)/(due*svisc)+u00*real(n,mykind)/(due*svisc)
+#else
+      Re = u0*real(n,mykind)/(svisc)+u00*real(n,mykind)/(svisc)
+#endif
+!      
       write(16,*) ' '
       write(16,*) '*********** size of the lattice **************'
       write(16,*) 'l (width x)  =',l
@@ -45,7 +57,7 @@
       write(16,*) 'u00          =',u00
       write(16,*) 'omega        =',omega
       write(16,*) 'tau          =',1.0/omega
-      write(16,*) 'Reynolds     =',0.5*u0*l/svisc+0.5*u00*l/svisc
+      write(16,*) 'Reynolds     =',Re
       write(16,*) 'forcing1     =',fgrad
       write(16,*) 'forcing2     =',u00/(6.0)
       write(16,*) 'u_inflow     =',u_inflow
@@ -86,7 +98,7 @@
       write(6,*) 'u00          =',u00
       write(6,*) 'omega        =',omega
       write(6,*) 'tau          =',1.0/omega
-      write(6,*) 'Reynolds     =',0.5*u0*l/svisc+0.5*u00*l/svisc
+      write(6,*) 'Reynolds     =',Re
       write(6,*) 'forcing1     =',fgrad
       write(6,*) 'forcing2     =',u00/(6.0)
       write(6,*) 'u_inflow     =',u_inflow
