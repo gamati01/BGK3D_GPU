@@ -72,6 +72,7 @@
 #ifdef TGV3D
            call dissipation(itime)
            call probe(itime,l/3,m/5,n/3)
+!           call vtk_3d_bin(itime)
 #else           
            call probe(itime,l/2,m/2,n/2)
 #endif

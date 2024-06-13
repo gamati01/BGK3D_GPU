@@ -144,10 +144,8 @@
            z = (real(k,mykind)-0.5d0)/real(n,mykind)  ! 0<z<1
            y = (real(j,mykind)-0.5d0)/real(m,mykind)  ! 0<y<1
            x = (real(i,mykind)-0.5d0)/real(l,mykind)  ! 0<x<1
-           vx = vx + 0.0001*(    u00*cos(2*pi*x)*sin(2*pi*y)*sin(2*pi*z))
-           vy = vy - 0.0001*(0.5*u00*sin(2*pi*x)*cos(2*pi*y)*sin(2*pi*z))
-           vz = vz - 0.0001*(    u00*sin(2*pi*x)*sin(2*pi*y)*cos(2*pi*z))
-           stop
+           vx = vx + 0.0001*(u00*sin(due*pi*x)*cos(due*pi*y)*cos(due*pi*z))
+           vy = vy - 0.0001*(u00*cos(due*pi*x)*sin(due*pi*y)*cos(due*pi*z))
 #endif
 !
 #ifdef DEBUG_3

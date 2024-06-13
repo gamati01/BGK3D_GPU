@@ -176,8 +176,8 @@
 #endif
 !       
 #ifdef TGVFORCING
-       write(6,*)  "INFO: TGV forcing enabled"
-       write(16,*) "INFO: TGV forcing enabled"
+       write(6,*)  "INFO: TGV forcing enabled (only fused)"
+       write(16,*) "INFO: TGV forcing enabled (only fused)"
 #endif
 !
 ! get info about git version used right now       
