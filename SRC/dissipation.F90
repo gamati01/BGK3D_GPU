@@ -8,7 +8,9 @@
 !       dissipation
 !     DESCRIPTION
 !       diagnostic subroutine:
-!       computing dissipation, turbulent kinetic energy and othe stuff
+!       computing 
+!               * dissipation
+!               * turbulent kinetic energy and other stuff
 !       for HIT test case
 !       using LBM stress tensor
 !     INPUTS
@@ -44,6 +46,7 @@
         real(mykind) :: n14,n15,n16,n17,n18
         real(mykind) :: rho,rhoinv,vx,vy,vz
         real(mykind) :: vx2,vy2,vz2,vsq
+        real(mykind) :: vx2m,vy2m,vz2m
         real(mykind) :: rp1,rp2,rp0
         real(mykind) :: vxpz,vxmz
         real(mykind) :: vxpy,vxmy
@@ -69,7 +72,10 @@
         dx = (due*pi)/real(l,mykind)
         dt = dx*u00
         diss = zero
-        tke = zero
+        tke  = zero
+        vx2m = zero
+        vy2m = zero
+        vz2m = zero
 !        
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd collapse(3)
@@ -120,6 +126,10 @@
            vx2 = vx*vx
            vy2 = vy*vy
            vz2 = vz*vz
+!
+           vx2m = vx2m + vx2
+           vy2m = vy2m + vy2
+           vz2m = vz2m + vz2
 !
            vsq = vx2+vy2+vz2
 !
@@ -275,13 +285,15 @@
         kolmog = ((svisc**3)/diss/float(l)/float(m)/float(n))**(0.25)
         write(77,1004) itime                          &
                      , float(itime)*dt                &
-                     , tke/float(l)/float(m)/float(n)/(u00*u00)  &
-                     , diss                           &
-                     , kolmog                          
+                     ,  tke/float(l)/float(m)/float(n)/(u00*u00) &
+                     , diss/float(l)/float(m)/float(n)/(u00*u00) &
+                     , vx2m/float(l)/float(m)/float(n)/(u00*u00) &
+                     , vy2m/float(l)/float(m)/float(n)/(u00*u00) &
+                     , vz2m/float(l)/float(m)/float(n)/(u00*u00) 
 !                            
         flush(77)      
 !
-1004    format(i8,4(e14.6,1x))
+1004    format(i8,6(e14.6,1x))
 !
 #ifdef DEBUG_2
         if(myrank == 0) then
