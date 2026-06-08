@@ -123,6 +123,14 @@
        write(16,*) "INFO: do concurrent version (GPU)"
 #endif
 !
+#ifdef ENERGY
+       write(6,*) "INFO: measuring GPU energy"
+       write(16,*) "INFO: measuring GPU energy"
+!       
+       write(6,*) "WARNING: only NVIDIA (Leonardo, Pitagora)"
+       write(16,*) "WARNING: only NVIDIA (Leonardo, Pitagora)"
+#endif
+!
 #ifdef FUSED
        write(16,*) "INFO: using Fused version"
 #else
