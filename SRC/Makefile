@@ -58,8 +58,6 @@ ifdef NVIDIA
  #LIB1=/leonardo/prod/spack/5.2/install/0.21/linux-rhel8-icelake/gcc-8.5.0/nvhpc-24.3-v63z4inohb4ywjeggzhlhiuvuoejr2le/Linux_x86_64/24.3/cuda/12.3/targets/x86_64-linux/lib/stubs -lnvidia-ml
 endif
 #
-endif
-#
 ifdef AMD
  MULTI = -DMULTICORE
  OFFLOAD = -fopenmp --offload-arch=gfx90a -DOFFLOAD

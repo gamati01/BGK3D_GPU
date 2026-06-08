@@ -78,6 +78,9 @@
         real(qp), parameter :: p2_qp = uno_qp/(rf_qp*rf_qp*(uno_qp+tre_qp))
 #endif
 !
+! timing stuff
+        integer(kind=8):: utime0, utime1, utime2, utime3       !unix time
+!        
         integer:: myrank
         integer:: imax, imin                    ! obstacle stuff
         integer:: jmax, jmin                    ! obstacle stuff
