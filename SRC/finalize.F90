@@ -69,6 +69,28 @@
          write(69,1110) mem_start, mem_stop
          write(69,*) (l/1024.0)*(m/1024.0)*(n/1024.0)*19*2*4
          write(69,9999) 
+         #ifdef ENERGY
+         write(69,1400) (energy0_2-energy0_1)/1000.0,  &
+                        (energy0_2-energy0_1)/float(utime2-utime1)/1000.0
+         write(69,1401) (energy1_2-energy1_1)/1000.0,  &
+                        (energy1_2-energy1_1)/float(utime2-utime1)/1000.0
+         write(69,1402) (energy2_2-energy2_1)/1000.0,  &
+                        (energy2_2-energy2_1)/float(utime2-utime1)/1000.0
+         write(69,1403) (energy3_2-energy3_1)/1000.0,  &
+                        (energy3_2-energy3_1)/float(utime2-utime1)/1000.0
+         write(69,9999)
+!
+         write(69,1500) (energy0_2-energy0_1)*1000.0*1000.0/float(itfin) &
+                                 /(float(n)*float(m)*float(l))
+         write(69,1501) (energy1_2-energy1_1)*1000.0*1000.0/float(itfin) &
+
+                                 /(float(n)*float(m)*float(l))
+         write(69,1502) (energy2_2-energy2_1)*1000.0*1000.0/float(itfin) &
+                                 /(float(n)*float(m)*float(l))
+         write(69,1503) (energy3_2-energy3_1)*1000.0*1000.0/float(itfin) &
+                                 /(float(n)*float(m)*float(l))
+         write(69,9999)
+#endif
          close(69)   ! bgk.perf
 !
          write(6,1106) float(l)*float(m)*float(n)* &
@@ -89,7 +111,6 @@
 !
 ! formats
 !
-9999  format(" #--------------------------------")
 1100  format(" # init   time",2(e14.6,1x))
 1101  format(" # loop   time",2(e14.6,1x))
 1102  format(" # coll   time",2(e14.6,1x))
@@ -111,6 +132,19 @@
 1109  format(" # move   BW  ",1(e14.6,1x), "GB/s")    ! double precision only
 1110  format(" # Memory (start,stop)",2(f14.6,1x), "MB")  ! double precision only
 !
+1400  format(" # GPU0: energy (J), Mean Power (W)", 2(f14.3,1x))
+1401  format(" # GPU1: energy (J), Mean Power (W)", 2(f14.3,1x))
+1402  format(" # GPU2: energy (J), Mean Power (W)", 2(f14.3,1x))
+1403  format(" # GPU3: energy (J), Mean Power (W)", 2(f14.3,1x))
+!
+1500  format(" # GPU0: energy per gridpoint (nJ)", 1(f14.3,1x))
+1501  format(" # GPU0: energy per gridpoint (nJ)", 1(f14.3,1x))
+1502  format(" # GPU0: energy per gridpoint (nJ)", 1(f14.3,1x))
+1503  format(" # GPU0: energy per gridpoint (nJ)", 1(f14.3,1x))
+!
+9999  format(" #--------------------------------")
+!
+#endif
 #ifdef DEBUG_1
       if(myrank == 0) then
          write(6,*) "DEBUG1: Exiting from sub. finalize"

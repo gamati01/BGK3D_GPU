@@ -26,6 +26,11 @@
 !
         use real_kinds
 !
+#ifdef ENERGY
+      use iso_c_binding
+      use nvml_interface
+#endif
+!
         implicit none
 !        
         integer:: lx, ly, lz          ! global size        
@@ -137,5 +142,18 @@
         real(mykind), parameter :: p0 = p0_qp
         real(mykind), parameter :: p1 = p1_qp
         real(mykind), parameter :: p2 = p2_qp
-
+!
+#ifdef ENERGY
+      integer :: mydev0, mydev1, mydev2, mydev3
+      integer(c_int) :: ierrc
+      integer(c_long_long) :: energy0_1,energy0_2
+      integer(c_long_long) :: energy1_1,energy1_2
+      integer(c_long_long) :: energy2_1,energy2_2
+      integer(c_long_long) :: energy3_1,energy3_2
+      integer(c_int) :: mydev0_c
+      integer(c_int) :: mydev1_c
+      integer(c_int) :: mydev2_c
+      integer(c_int) :: mydev3_c
+#endif
+!
         end module  storage

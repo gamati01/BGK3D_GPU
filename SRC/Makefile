@@ -50,6 +50,14 @@ ifdef NVIDIA
  COPT = -O2
  OPT  = -O2 -Mnodepchk -Mcontiguous
  CHECK1=NVIDIA
+ # fix for ENERGY/Leonardo
+ INC1=/leonardo/prod/spack/5.2/install/0.21/linux-rhel8-icelake/gcc-8.5.0/nvhpc-24.3-v63z4inohb4ywjeggzhlhiuvuoejr2le/Linux_x86_64/24.3/cuda/12.3/targets/x86_64-linux/include
+ LIB1=/leonardo/prod/spack/5.2/install/0.21/linux-rhel8-icelake/gcc-8.5.0/nvhpc-24.3-v63z4inohb4ywjeggzhlhiuvuoejr2le/Linux_x86_64/24.3/cuda/12.3/targets/x86_64-linux/lib/stubs -lnvidia-ml
+ # fix for ENERGY/Pitagora
+ #INC1=/leonardo/prod/spack/5.2/install/0.21/linux-rhel8-icelake/gcc-8.5.0/nvhpc-24.3-v63z4inohb4ywjeggzhlhiuvuoejr2le/Linux_x86_64/24.3/cuda/12.3/targets/x86_64-linux/include
+ #LIB1=/leonardo/prod/spack/5.2/install/0.21/linux-rhel8-icelake/gcc-8.5.0/nvhpc-24.3-v63z4inohb4ywjeggzhlhiuvuoejr2le/Linux_x86_64/24.3/cuda/12.3/targets/x86_64-linux/lib/stubs -lnvidia-ml
+endif
+#
 endif
 #
 ifdef AMD
@@ -197,8 +205,10 @@ endif
 MOD0 = get_mem_mod.o \
 
 MOD1 = precision.o \
-      storage.o \
-      mod_tools.o \
+       nvml_interface_module.o \
+       storage.o \
+       mod_tools.o \
+       unixtime_module.o \
 
 # 0th level subroutine
 OBJ0 = bgk3d.o \
@@ -227,6 +237,7 @@ OBJ2 = check_case.o \
        init.o\
        hencol.o \
        outdat.o \
+       nvml_wrapper.o \
        vtk_obstacle.o \
        vtk_3d.binary.o \
        vtk_xy.o \
@@ -345,6 +356,9 @@ multicore: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 #----------------------------------------------
 # rules 
 #----------------------------------------------
+
+nvml_wrapper.o:
+	$(SCC) -O3 -I$(INC1) $(FIX) -c nvml_wrapper.c
 
 %.o %.mod: $(INC) %.f90
 	$(FC) $(FOPT) $(PREC) $(PREPROC) $(IMPL) $(FIX) -c $<

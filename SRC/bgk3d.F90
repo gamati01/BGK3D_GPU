@@ -1,12 +1,12 @@
 ! =====================================================================
-!     ****** LBE/bgk2D
+!     ****** LBE/bgk3D
 !
 !     COPYRIGHT
 !       (c) 2021 by CINECA/G.Amati
 !     NAME
 !       bgk2d
 !     DESCRIPTION
-!       main program for LBM 2D
+!       main program for LBM 3D
 !     INPUTS
 !       none
 !     OUTPUT
@@ -55,6 +55,7 @@
       use storage
       use timing
       use real_kinds
+      use unix_time_mod
 !
       implicit none
 !
@@ -72,6 +73,49 @@
 ! initialize the flow...
       call initialize(itrestart,init_v,itfin,itstart,ivtim,isignal, & 
                       itsave,icheck)
+!
+!
+! timing just before the time loop
+      utime1 = unix_time()
+!
+! get GPU energy at start
+#ifdef ENERGY
+!
+      mydev0 = 0
+      mydev1 = 1
+      mydev2 = 2
+      mydev3 = 3
+!
+      mydev0_c=int(mydev0,kind=c_int)
+      mydev1_c=int(mydev1,kind=c_int)
+      mydev2_c=int(mydev2,kind=c_int)
+      mydev3_c=int(mydev3,kind=c_int)
+!
+      ierrc=get_gpu_energy_mJ_u64(mydev0_c,energy0_1)
+      if (ierrc /= 0_c_int) then
+         write(*,*) "NVML error reading energy for device 0, err=", ierrc
+      endif
+!
+      ierrc=get_gpu_energy_mJ_u64(mydev1_c,energy1_1)
+      if (ierrc /= 0_c_int) then
+         write(*,*) "NVML error reading energy for device 1, err=", ierrc
+      endif
+!
+      ierrc=get_gpu_energy_mJ_u64(mydev2_c,energy2_1)
+      if (ierrc /= 0_c_int) then
+         write(*,*) "NVML error reading energy for device 2, err=", ierrc
+      endif
+!
+      ierrc=get_gpu_energy_mJ_u64(mydev3_c,energy3_1)
+      if (ierrc /= 0_c_int) then
+        write(*,*) "NVML error reading energy for device 3, err=", ierrc
+      endif
+!
+      write( 6,*) "INFO: Start Energy GPU0 =", utime1, energy0_1
+      write( 6,*) "INFO: Start Energy GPU1 =", utime1, energy1_1
+      write(16,*) "INFO: Start Energy GPU1 =", utime1, energy0_1
+      write(16,*) "INFO: Start Energy GPU0 =", utime1, energy1_1
+#endif
 !
 #ifdef NOMANAGED
 !$acc data copyin(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,   &
@@ -127,11 +171,28 @@
          endif
       enddo
 !
+!
+! timing just after the time loop
+      utime2 = unix_time()
+!      
 !     some global timings
       call SYSTEM_CLOCK(countE1, count_rate, count_max)
       call time(tcountE1)
       time_loop = real(countE1-countE0)/(count_rate)
       time_loop1 = tcountE1-tcountE0
+!
+! get GPU energy at end
+#ifdef ENERGY
+      ierrc=get_gpu_energy_mJ_u64(mydev0_c,energy0_2)
+      ierrc=get_gpu_energy_mJ_u64(mydev1_c,energy1_2)
+      ierrc=get_gpu_energy_mJ_u64(mydev2_c,energy2_2)
+      ierrc=get_gpu_energy_mJ_u64(mydev3_c,energy3_2)
+!
+      write(6,*)  "INFO: End Energy GPU0 =", utime2, energy0_2
+      write(6,*)  "INFO: End Energy GPU1 =", utime2, energy1_2
+      write(16,*) "INFO: End Energy GPU1 =", utime2, energy0_2
+      write(16,*) "INFO: End Energy GPU2 =", utime2, energy1_2
+#endif
 !
 !     final diagnostic (for check)
       call diagno(itime-1)
