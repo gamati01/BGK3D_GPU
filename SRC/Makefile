@@ -296,7 +296,7 @@ doconcurrent: OPT  += $(DC)
 doconcurrent: FC := $(SFC) 
 doconcurrent: CC := $(SCC)
 doconcurrent: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
-	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -o ../RUN/bgk3d.$(VER).x
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -L$(LIB1) -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
 	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)
 	@echo "further option: "$(FIX)
@@ -312,7 +312,7 @@ offload: VER := offload
 offload: FC := $(SFC)
 offload: CC := $(SCC)
 offload:$(MOD0) $(MOD1) $(OBJ) $(OBJ4)
-	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(FIX) $(LIB) -o ../RUN/bgk3d.$(VER).x
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(FIX) $(LIB) -L$(LIB1) -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
 	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4) 
 	@echo "further option: "$(FIX)
@@ -328,7 +328,7 @@ openacc: VER := openacc
 openacc: FC := $(SFC)
 openacc: CC := $(SCC)
 openacc:$(MOD0) $(MOD1) $(OBJ) $(OBJ4)
-	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(FIX) $(LIB) -o ../RUN/bgk3d.$(VER).x
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(FIX) $(LIB) -L$(LIB1) -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
 	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4) 
 	@echo "further option: "$(FIX)

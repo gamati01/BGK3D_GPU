@@ -30,11 +30,4 @@ int get_gpu_energy_mJ_u64(int idx, unsigned long long *e_mJ){
   if(r != NVML_SUCCESS) return -3;
   return 0;
 }
-#else
-#include <stdio.h>
-
-void donot() {
-    printf("Do nothing\n");
-}
-
 #endif

@@ -138,9 +138,9 @@
 1403  format(" # GPU3: energy (J), Mean Power (W)", 2(f14.3,1x))
 !
 1500  format(" # GPU0: energy per gridpoint (nJ)", 1(f14.3,1x))
-1501  format(" # GPU0: energy per gridpoint (nJ)", 1(f14.3,1x))
-1502  format(" # GPU0: energy per gridpoint (nJ)", 1(f14.3,1x))
-1503  format(" # GPU0: energy per gridpoint (nJ)", 1(f14.3,1x))
+1501  format(" # GPU1: energy per gridpoint (nJ)", 1(f14.3,1x))
+1502  format(" # GPU2: energy per gridpoint (nJ)", 1(f14.3,1x))
+1503  format(" # GPU3: energy per gridpoint (nJ)", 1(f14.3,1x))
 !
 9999  format(" #--------------------------------")
 !
