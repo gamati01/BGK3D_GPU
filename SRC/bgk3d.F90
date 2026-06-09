@@ -113,8 +113,12 @@
 !
       write( 6,*) "INFO: Start Energy GPU0 =", utime1, energy0_1
       write( 6,*) "INFO: Start Energy GPU1 =", utime1, energy1_1
-      write(16,*) "INFO: Start Energy GPU1 =", utime1, energy0_1
-      write(16,*) "INFO: Start Energy GPU0 =", utime1, energy1_1
+      write( 6,*) "INFO: Start Energy GPU2 =", utime1, energy2_1
+      write( 6,*) "INFO: Start Energy GPU3 =", utime1, energy3_1
+      write(16,*) "INFO: Start Energy GPU0 =", utime1, energy0_1
+      write(16,*) "INFO: Start Energy GPU1 =", utime1, energy1_1
+      write(16,*) "INFO: Start Energy GPU2 =", utime1, energy2_1
+      write(16,*) "INFO: Start Energy GPU3 =", utime1, energy3_1
 #endif
 !
 #ifdef NOMANAGED
@@ -190,8 +194,12 @@
 !
       write(6,*)  "INFO: End Energy GPU0 =", utime2, energy0_2
       write(6,*)  "INFO: End Energy GPU1 =", utime2, energy1_2
-      write(16,*) "INFO: End Energy GPU1 =", utime2, energy0_2
-      write(16,*) "INFO: End Energy GPU2 =", utime2, energy1_2
+      write(6,*)  "INFO: End Energy GPU2 =", utime2, energy2_2
+      write(6,*)  "INFO: End Energy GPU3 =", utime2, energy3_2
+      write(16,*) "INFO: End Energy GPU0 =", utime2, energy0_2
+      write(16,*) "INFO: End Energy GPU1 =", utime2, energy1_2
+      write(16,*) "INFO: End Energy GPU2 =", utime2, energy2_2
+      write(16,*) "INFO: End Energy GPU3 =", utime2, energy3_2
 #endif
 !
 !     final diagnostic (for check)
