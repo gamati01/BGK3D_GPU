@@ -39,9 +39,12 @@ CHECK4=LDC
 #
 ifdef NVIDIA
  OFFLOAD = -mp=gpu -DOFFLOAD  -Minfo=accel 
- #OPENACC = -Minfo=acc -O2 -acc -DOPENACC -ta=tesla:cc70,managed
- OPENACC = -Minfo=acc -O2 -acc -DOPENACC -ta=tesla:cc80,managed
- OPENACC = -Minfo=acc -O2 -acc -DOPENACC -acc -gpu=cc90,mem:managed
+ # G100
+ OPENACC = -Minfo=acc -O2 -acc -DOPENACC -ta=tesla:cc70,managed
+ # A100
+ # OPENACC = -Minfo=acc -O2 -acc -DOPENACC -ta=tesla:cc80,managed
+ # H100
+ # OPENACC = -Minfo=acc -O2 -acc -DOPENACC -acc -gpu=cc90,mem:managed
  MULTI = -stdpar=multicore -Minfo=all -DMULTICORE
  DC  = -stdpar=gpu -DDC
  SCC = nvcc 
@@ -51,12 +54,15 @@ ifdef NVIDIA
  COPT = -O2
  OPT  = -O2 -Mnodepchk -Mcontiguous
  CHECK1=NVIDIA
+ # fix for ENERGY/G100
+ INC1=/g100_work/PROJECTS/spack/preprod/01/install/0.18/linux-centos8-skylake_avx512/gcc-8.4.1/nvhpc-22.3-jgtetvzbyjbc2o6qpmlcjcjxkp5vi7r5/Linux_x86_64/22.3/cuda/11.6/targets/x86_64-linux/include
+ LIB1=/g100_work/PROJECTS/spack/preprod/01/install/0.18/linux-centos8-skylake_avx512/gcc-8.4.1/nvhpc-22.3-jgtetvzbyjbc2o6qpmlcjcjxkp5vi7r5/Linux_x86_64/22.3/cuda/11.6/targets/x86_64-linux/lib/stubs -lnvidia-ml
  # fix for ENERGY/Leonardo
- INC1=/leonardo/prod/spack/5.2/install/0.21/linux-rhel8-icelake/gcc-8.5.0/nvhpc-24.3-v63z4inohb4ywjeggzhlhiuvuoejr2le/Linux_x86_64/24.3/cuda/12.3/targets/x86_64-linux/include
- LIB1=/leonardo/prod/spack/5.2/install/0.21/linux-rhel8-icelake/gcc-8.5.0/nvhpc-24.3-v63z4inohb4ywjeggzhlhiuvuoejr2le/Linux_x86_64/24.3/cuda/12.3/targets/x86_64-linux/lib/stubs -lnvidia-ml
+ #INC1=/leonardo/prod/spack/5.2/install/0.21/linux-rhel8-icelake/gcc-8.5.0/nvhpc-24.3-v63z4inohb4ywjeggzhlhiuvuoejr2le/Linux_x86_64/24.3/cuda/12.3/targets/x86_64-linux/include
+ #LIB1=/leonardo/prod/spack/5.2/install/0.21/linux-rhel8-icelake/gcc-8.5.0/nvhpc-24.3-v63z4inohb4ywjeggzhlhiuvuoejr2le/Linux_x86_64/24.3/cuda/12.3/targets/x86_64-linux/lib/stubs -lnvidia-ml
  # fix for ENERGY/Pitagora
- INC1=/pitagora/prod/spack/6.1/install/0.22/linux-rhel9-zen4/gcc-11.4.1/nvhpc-25.11-ntshdsgl52b6ckb6iu7xazd6uvqi3wqi/Linux_x86_64/25.11/cuda/13.0/targets/x86_64-linux/include
- LIB1=/pitagora/prod/spack/6.1/install/0.22/linux-rhel9-zen4/gcc-11.4.1/nvhpc-25.11-ntshdsgl52b6ckb6iu7xazd6uvqi3wqi/Linux_x86_64/25.11/cuda/13.0/targets/x86_64-linux/lib/stubs -lnvidia-ml
+ #INC1=/pitagora/prod/spack/6.1/install/0.22/linux-rhel9-zen4/gcc-11.4.1/nvhpc-25.11-ntshdsgl52b6ckb6iu7xazd6uvqi3wqi/Linux_x86_64/25.11/cuda/13.0/targets/x86_64-linux/include
+ #LIB1=/pitagora/prod/spack/6.1/install/0.22/linux-rhel9-zen4/gcc-11.4.1/nvhpc-25.11-ntshdsgl52b6ckb6iu7xazd6uvqi3wqi/Linux_x86_64/25.11/cuda/13.0/targets/x86_64-linux/lib/stubs -lnvidia-ml
 endif
 #
 ifdef AMD
