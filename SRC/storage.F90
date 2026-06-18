@@ -28,7 +28,11 @@
 !
 #ifdef ENERGY
       use iso_c_binding
+#ifdef AMDSMI
+      use amdsmi_interface
+#else
       use nvml_interface
+#endif
 #endif
 !
         implicit none

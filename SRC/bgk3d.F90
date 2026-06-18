@@ -18,7 +18,7 @@
 !       integer variables used: itfin, itstart, ivtim
 !                               itime, itsave, icheck, itrestart
 !                               isignal
-!       real variables used: tempo1, tempo2     
+!       real variables used: tempo1, tempo2
 !       open the following unit: 16 (bgk.log)
 !                                60 (prof_k.dat)
 !                                61 (prof_i.dat)
@@ -46,7 +46,7 @@
 !        direction 17    unit vector = ( 0,-1, 0)   tipo 1
 !        direction 18    unit vector = ( 0,-1, 1)   tipo 2
 !        direction 19    unit vector = ( 0, 0, 0)   tipo 0
-!                              
+!
 !     *****
 ! =====================================================================
 !
@@ -65,13 +65,13 @@
 !
       call SYSTEM_CLOCK(countH0, count_rate, count_max)
       call time(tcountH0)
-!      
+!
 ! set up the simulation...
-      call setup(itfin,ivtim,isignal,itsave,icheck,itrestart, & 
+      call setup(itfin,ivtim,isignal,itsave,icheck,itrestart, &
                  init_v)
-!      
+!
 ! initialize the flow...
-      call initialize(itrestart,init_v,itfin,itstart,ivtim,isignal, & 
+      call initialize(itrestart,init_v,itfin,itstart,ivtim,isignal, &
                       itsave,icheck)
 !
 !
@@ -93,22 +93,22 @@
 !
       ierrc=get_gpu_energy_mJ_u64(mydev0_c,energy0_1)
       if (ierrc /= 0_c_int) then
-         write(*,*) "NVML error reading energy for device 0, err=", ierrc
+         write(*,*) "GPU error reading energy for device 0, err=", ierrc
       endif
 !
       ierrc=get_gpu_energy_mJ_u64(mydev1_c,energy1_1)
       if (ierrc /= 0_c_int) then
-         write(*,*) "NVML error reading energy for device 1, err=", ierrc
+         write(*,*) "GPU error reading energy for device 1, err=", ierrc
       endif
 !
       ierrc=get_gpu_energy_mJ_u64(mydev2_c,energy2_1)
       if (ierrc /= 0_c_int) then
-         write(*,*) "NVML error reading energy for device 2, err=", ierrc
+         write(*,*) "GPU error reading energy for device 2, err=", ierrc
       endif
 !
       ierrc=get_gpu_energy_mJ_u64(mydev3_c,energy3_1)
       if (ierrc /= 0_c_int) then
-        write(*,*) "NVML error reading energy for device 3, err=", ierrc
+        write(*,*) "GPU error reading energy for device 3, err=", ierrc
       endif
 !
       write( 6,*) "INFO: Start Energy GPU0 =", utime1, energy0_1
@@ -125,14 +125,14 @@
 !$acc data copyin(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,   &
 !$acc&            a11,a12,a13,a14,a15,a16,a17,a18,a19,       &
 !$acc&            b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,   &
-!$acc&            b11,b12,b13,b14,b15,b16,b17,b18,b19,obs)   
+!$acc&            b11,b12,b13,b14,b15,b16,b17,b18,b19,obs)
 #endif
 !
       call SYSTEM_CLOCK(countH1, count_rate, count_max)
       call time(tcountH1)
       time_init =  real(countH1-countH0)/(count_rate)
       time_init1 = (tcountH1-tcountH0)
-!      
+!
       call SYSTEM_CLOCK(countE0, count_rate, count_max)
       call time(tcountE0)
 !
@@ -141,7 +141,7 @@
 !
 ! main loop starts here.....
 !
-      if(myrank==0) then 
+      if(myrank==0) then
          call system("date       >> time.log")
       endif
 !
@@ -151,7 +151,7 @@
 !$OMP&                       b01,b02,b03,b04,b05,b06,b07,b08,b09,b10, &
 !$OMP&                       b11,b12,b13,b14,b15,b16,b17,b18,b19,obs)
 #endif
-!      
+!
       do itime=itstart+1,itfin
 !
 #ifdef DEBUG_2
@@ -169,8 +169,8 @@
 !
 ! get timing/profiling values
          if (mod(itime,isignal).eq.0) then
-            if (myrank == 0 ) then 
-               call profile(itime,itfin,isignal) 
+            if (myrank == 0 ) then
+               call profile(itime,itfin,isignal)
             endif
          endif
       enddo
@@ -178,7 +178,7 @@
 !
 ! timing just after the time loop
       utime2 = unix_time()
-!      
+!
 !     some global timings
       call SYSTEM_CLOCK(countE1, count_rate, count_max)
       call time(tcountE1)
@@ -212,7 +212,7 @@
 #ifdef OFFLOAD
 !$omp end target data
 #endif
-!      
+!
 #ifdef NOMANAGED
 !$acc end data
 #endif

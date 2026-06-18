@@ -9,8 +9,8 @@
 #		offload ---> GPU code with openmp offload
 #		openacc ---> GPU code with openACC
 #		serial  ---> Serial CPU code
-#		mulitcore -> Multicore CPU code 
-# 
+#		mulitcore -> Multicore CPU code
+#
 #----------------------------------------------
 DATE = $(shell date +%d%m%y)
 FINE = "******** End Compilation step  *******"
@@ -37,8 +37,13 @@ CHECK2=SINGLE
 CHECK3=ORIGINAL
 CHECK4=LDC
 #
+# GPU energy/power monitoring wrapper (NVML by default, AMD SMI under AMD)
+GPU_ENERGY_OBJ = nvml_wrapper.o
+# Matching Fortran interface module (NVML by default, AMD SMI under AMD)
+GPU_IFACE_MOD = nvml_interface_module.o
+#
 ifdef NVIDIA
- OFFLOAD = -mp=gpu -DOFFLOAD  -Minfo=accel 
+ OFFLOAD = -mp=gpu -DOFFLOAD  -Minfo=accel
  # G100
  OPENACC = -Minfo=acc -O2 -acc -DOPENACC -ta=tesla:cc70,managed
  # A100
@@ -47,7 +52,7 @@ ifdef NVIDIA
  # OPENACC = -Minfo=acc -O2 -acc -DOPENACC -acc -gpu=cc90,mem:managed
  MULTI = -stdpar=multicore -Minfo=all -DMULTICORE
  DC  = -stdpar=gpu -DDC
- SCC = nvcc 
+ SCC = nvcc
  SFC = scorep-nvfortran  -DPGI
  SFC = nvfortran -DPGI
  FOPT = -O2 -Mnodepchk -Mcontiguous
@@ -66,16 +71,25 @@ ifdef NVIDIA
 endif
 #
 ifdef AMD
+ # AMD GPU target architecture; override from the command line, e.g.
+ #   make AMD=1 GFX_ARCH=gfx942 ...
+ GFX_ARCH ?= gfx90a
  MULTI = -DMULTICORE
- OFFLOAD = -fopenmp --offload-arch=gfx90a -DOFFLOAD
+ OFFLOAD = -fopenmp --offload-arch=$(GFX_ARCH) -DOFFLOAD
  OPENACC = not supported
  DC = not supported
- SFC = flang -DPGI
- SCC = clang -DPGI
+ SFC = amdflang -DPGI -DAMDSMI
+ SCC = amdclang -DPGI
  FOPT =  -O3
  COPT =  -O3
  OPT =   -O3
  CHECK1=AMD
+ # use the AMD SMI wrapper / interface module instead of the NVML ones
+ GPU_ENERGY_OBJ = amdsmi_wrapper.o
+ GPU_IFACE_MOD = amdsmi_interface_module.o
+ # fix for ENERGY/AMD (adjust the ROCm path to the installed version)
+ INC1=$(ROCM_PATH)/include
+ LIB1=$(ROCM_PATH)/lib -lamd_smi
 endif
 #
 ifdef CRAY
@@ -92,18 +106,18 @@ ifdef CRAY
 endif
 #
 ifdef GNU
-# do nothing (default)	
+# do nothing (default)
 endif
 #
 ifdef INTEL
  MULTI =  -qopenmp -DMULTICORE
  OPENACC = not supported
- OFFLOAD = 
+ OFFLOAD =
  DC =  -DDC
  SFC = ifx
  SCC = icx
  FOPT = -O3 -xCORE-AVX512 -mtune=skylake-avx512 -assume contiguous_pointer
- COPT = -O3 
+ COPT = -O3
  OPT =  -O3
  OPENMP = -qopenmp
  INFO = -warn all
@@ -113,14 +127,28 @@ endif
 #
 # to remove
 #ifdef PWR
-# SCC = xlc_r  
-# SFC = xlf_r 
+# SCC = xlc_r
+# SFC = xlf_r
 # OFFLOAD = -qsmp=omp -qoffload -DOFFLOAD
 # FOPT = -O3 -qassert=contig
 # COPT = -O3 -qassert=contig
 # OPT = -O3 -qassert=contig
 # CHECK1=PWR
 #endif
+#
+#----------------------------------------------
+# GPU energy/power monitoring (optional, opt-in)
+#----------------------------------------------
+# Enable with ENERGY=1 on the make command line, e.g.
+#   make offload ENERGY=1 AMD=1 FUSED=1 GFX_ARCH=gfx942
+# Placed after the vendor blocks so the +=/= appends to the selected vendor.
+ENERGY_DEF =
+ifdef ENERGY
+ ENERGY_DEF = -DENERGY
+ FOPT += -DENERGY
+ OPT  += -DENERGY
+ COPT += -DENERGY
+endif
 #
 #----------------------------------------------
 # precision used
@@ -133,12 +161,12 @@ ifdef SINGLE
 endif
 #
 ifdef MIXED1
- PREC =-DHALF_P -DMIXEDPRECISION 
+ PREC =-DHALF_P -DMIXEDPRECISION
  CHECK2=MIXED1
 endif
 #
 ifdef MIXED2
- PREC =-DMIXEDPRECISION 
+ PREC =-DMIXEDPRECISION
  CHECK2=MIXED2
 endif
 #
@@ -148,12 +176,12 @@ ifdef DOUBLE
 endif
 #
 #----------------------------------------------
-# implementations 
+# implementations
 #----------------------------------------------
 #
 # default, ORIGINAL
 ifdef ORIG
- IMPL = 
+ IMPL =
  CHECK3=ORIG
 endif
 #
@@ -210,7 +238,7 @@ endif
 MOD0 = get_mem_mod.o \
 
 MOD1 = precision.o \
-       nvml_interface_module.o \
+       $(GPU_IFACE_MOD) \
        storage.o \
        mod_tools.o \
        unixtime_module.o \
@@ -242,7 +270,7 @@ OBJ2 = check_case.o \
        init.o\
        hencol.o \
        outdat.o \
-       nvml_wrapper.o \
+       $(GPU_ENERGY_OBJ) \
        vtk_obstacle.o \
        vtk_3d.binary.o \
        vtk_xy.o \
@@ -271,7 +299,7 @@ OBJ2 = check_case.o \
 OBJ3 = get_mem.o \
        collision.o \
        col_MC.o \
-       col.o 
+       col.o
 
 OBJ = $(OBJ1) $(OBJ0) $(OBJ2) $(OBJ3)
 
@@ -284,12 +312,12 @@ serial: all
 #
 #----------------------------------------------
 all: VER := serial
-all: FC := $(SFC) 
+all: FC := $(SFC)
 all: CC := $(SCC)
 all: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
-	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -o ../RUN/bgk3d.$(VER).x 
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
-	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4) 
+	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)
 	@echo "further option: "$(FIX)
 	@echo $(FINE)
 	@echo "-------------------------------------------------"
@@ -300,7 +328,7 @@ all: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 doconcurrent: VER := doconcurrent
 doconcurrent: FOPT += $(DC)
 doconcurrent: OPT  += $(DC)
-doconcurrent: FC := $(SFC) 
+doconcurrent: FC := $(SFC)
 doconcurrent: CC := $(SCC)
 doconcurrent: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -L$(LIB1) -o ../RUN/bgk3d.$(VER).x
@@ -321,7 +349,7 @@ offload: CC := $(SCC)
 offload:$(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(FIX) $(LIB) -L$(LIB1) -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
-	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4) 
+	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)
 	@echo "further option: "$(FIX)
 	@echo $(FINE)
 	@echo "-------------------------------------------------"
@@ -337,7 +365,7 @@ openacc: CC := $(SCC)
 openacc:$(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(FIX) $(LIB) -L$(LIB1) -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
-	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4) 
+	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)
 	@echo "further option: "$(FIX)
 	@echo $(FINE)
 	@echo "-------------------------------------------------"
@@ -359,11 +387,14 @@ multicore: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 	rm git_info.F90
 #
 #----------------------------------------------
-# rules 
+# rules
 #----------------------------------------------
 
-nvml_wrapper.o:
-	$(SCC) -O3 -I$(INC1) $(FIX) -c nvml_wrapper.c
+nvml_wrapper.o: nvml_wrapper.c
+	$(SCC) -O3 -I$(INC1) $(ENERGY_DEF) $(FIX) -c nvml_wrapper.c
+
+amdsmi_wrapper.o: amdsmi_wrapper.c
+	$(SCC) -O3 -I$(INC1) $(ENERGY_DEF) $(FIX) -c amdsmi_wrapper.c
 
 %.o %.mod: $(INC) %.f90
 	$(FC) $(FOPT) $(PREC) $(PREPROC) $(IMPL) $(FIX) -c $<
@@ -388,7 +419,7 @@ make_info.F90:
 	echo "    write( 6,*) \""INFO: `echo $(FOPT)   ` \"         >> make_info.F90
 	echo "    write( 6,*) \""INFO: `echo $(PREPROC)` \"         >> make_info.F90
 	echo "    end subroutine make_info"                         >> make_info.F90
-	
+
 git_info.F90:
 	echo "    subroutine git_info"                              >> git_info.F90
 	echo "    write( 6,*) \""INFO: `git log  | head  -n 1` \"   >> git_info.F90
