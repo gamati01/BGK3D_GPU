@@ -42,6 +42,14 @@ GPU_ENERGY_OBJ = nvml_wrapper.o
 # Matching Fortran interface module (NVML by default, AMD SMI under AMD)
 GPU_IFACE_MOD = nvml_interface_module.o
 #
+# Native GPU port of the fused collision (HIP / CUDA back-ends)
+HIPCC     ?= hipcc
+NVCC      ?= nvcc
+GFX_ARCH  ?= gfx90a
+NV_ARCH   ?= sm_80
+ROCM_PATH ?= /opt/rocm
+CUDA_PATH ?= /usr/local/cuda
+#
 ifdef NVIDIA
  OFFLOAD = -mp=gpu -DOFFLOAD  -Minfo=accel
  # G100
@@ -357,6 +365,54 @@ offload:$(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 	rm git_info.F90
 #
 #----------------------------------------------
+# Native GPU collision via HIP.
+# Data residency + boundary kernels stay on OpenMP offload; only the
+# fused collision (col_MC) is replaced by a HIP kernel.
+# Typical use (AMD):
+#   make hip AMD=1 FUSED=1 LDC=1 GFX_ARCH=gfx942
+# GPU power/energy monitoring (AMD SMI) is backend-agnostic: just add
+# ENERGY=1 exactly as for the offload/openacc targets, e.g.
+#   make hip AMD=1 FUSED=1 LDC=1 ENERGY=1 GFX_ARCH=gfx942
+# Results (energy in J, mean power in W) are written to RUN/bgk.perf.
+hip: FOPT += $(OFFLOAD) -DGPU_NATIVE
+hip: OPT  += $(OFFLOAD) -DGPU_NATIVE
+hip: VER := hip
+hip: FC := $(SFC)
+hip: CC := $(SCC)
+hip: $(MOD0) $(MOD1) $(OBJ) $(OBJ4) col_MC_hip.o
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) col_MC_hip.o $(IMPL) $(FIX) $(LIB) -L$(LIB1) -L$(ROCM_PATH)/lib -lamdhip64 -lstdc++ -o ../RUN/bgk3d.$(VER).x
+	@echo "-------------------------------------------------"
+	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)" HIP/"$(GFX_ARCH)
+	@echo "further option: "$(FIX)
+	@echo $(FINE)
+	@echo "-------------------------------------------------"
+	rm make_info.F90
+	rm git_info.F90
+#
+#----------------------------------------------
+# Native GPU collision via CUDA (NVIDIA). Mirror of the HIP target.
+# Typical use (NVIDIA):
+#   make cuda NVIDIA=1 FUSED=1 LDC=1 NV_ARCH=sm_80
+# GPU power/energy monitoring (NVML) is backend-agnostic: just add
+# ENERGY=1 exactly as for the offload/openacc targets, e.g.
+#   make cuda NVIDIA=1 FUSED=1 LDC=1 ENERGY=1 NV_ARCH=sm_80
+# Results (energy in J, mean power in W) are written to RUN/bgk.perf.
+cuda: FOPT += $(OFFLOAD) -DGPU_NATIVE
+cuda: OPT  += $(OFFLOAD) -DGPU_NATIVE
+cuda: VER := cuda
+cuda: FC := $(SFC)
+cuda: CC := $(SCC)
+cuda: $(MOD0) $(MOD1) $(OBJ) $(OBJ4) col_MC_cuda.o
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) col_MC_cuda.o $(IMPL) $(FIX) $(LIB) -L$(LIB1) -L$(CUDA_PATH)/lib64 -lcudart -lstdc++ -o ../RUN/bgk3d.$(VER).x
+	@echo "-------------------------------------------------"
+	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)" CUDA/"$(NV_ARCH)
+	@echo "further option: "$(FIX)
+	@echo $(FINE)
+	@echo "-------------------------------------------------"
+	rm make_info.F90
+	rm git_info.F90
+#
+#----------------------------------------------
 openacc: FOPT += $(OPENACC)
 openacc: OPT  += $(OPENACC)
 openacc: VER := openacc
@@ -395,6 +451,14 @@ nvml_wrapper.o: nvml_wrapper.c
 
 amdsmi_wrapper.o: amdsmi_wrapper.c
 	$(SCC) -O3 -I$(INC1) $(ENERGY_DEF) $(FIX) -c amdsmi_wrapper.c
+
+# Native GPU collision back-ends (kernel body shared via col_MC_gpu.hpp).
+# $(PREC) carries -DDOUBLE_P etc. so real_t matches the Fortran storage kind.
+col_MC_hip.o: col_MC_hip.cpp col_MC_gpu.hpp
+	$(HIPCC) -O3 --offload-arch=$(GFX_ARCH) $(PREC) $(FIX) -c col_MC_hip.cpp -o col_MC_hip.o
+
+col_MC_cuda.o: col_MC_cuda.cu col_MC_gpu.hpp
+	$(NVCC) -O3 -arch=$(NV_ARCH) $(PREC) $(FIX) -c col_MC_cuda.cu -o col_MC_cuda.o
 
 %.o %.mod: $(INC) %.f90
 	$(FC) $(FOPT) $(PREC) $(PREPROC) $(IMPL) $(FIX) -c $<

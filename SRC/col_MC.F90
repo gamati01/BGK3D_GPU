@@ -37,6 +37,9 @@
         use storage
         use real_kinds
         use timing
+#ifdef GPU_NATIVE
+        use iso_c_binding
+#endif
 !
         implicit none
 !
@@ -68,6 +71,38 @@
         real(mykind) :: Ptotal,Ts
 !        
                 parameter(pi=3.141592653589793238462643383279)
+!
+#ifdef GPU_NATIVE
+! native GPU (HIP/CUDA) port of the fused collision: interoperable kind
+! for the storage arrays (must match mystorage in precision.F90).
+#ifdef DOUBLE_P
+        integer, parameter :: c_real = c_double
+#else
+        integer, parameter :: c_real = c_float
+#endif
+        integer :: nx_c, ny_c
+        interface
+          subroutine col_mc_gpu(                                          &
+              a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                    &
+              a11,a12,a13,a14,a15,a16,a17,a18,a19,                        &
+              b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,                    &
+              b11,b12,b13,b14,b15,b16,b17,b18,                            &
+              l,m,n,nx,ny,                                               &
+              omega,cte0,cte1,p0,p1,p2,rf,qf,tre,                         &
+              forcex,forcey,forcez) bind(C, name="col_mc_gpu")
+            import :: c_real, c_int
+            real(c_real), dimension(*) :: a01,a02,a03,a04,a05,a06,a07
+            real(c_real), dimension(*) :: a08,a09,a10,a11,a12,a13,a14
+            real(c_real), dimension(*) :: a15,a16,a17,a18,a19
+            real(c_real), dimension(*) :: b01,b02,b03,b04,b05,b06,b07
+            real(c_real), dimension(*) :: b08,b09,b10,b11,b12,b13,b14
+            real(c_real), dimension(*) :: b15,b16,b17,b18
+            integer(c_int), value :: l,m,n,nx,ny
+            real(c_real), value :: omega,cte0,cte1,p0,p1,p2,rf,qf,tre
+            real(c_real), value :: forcex,forcey,forcez
+          end subroutine col_mc_gpu
+        end interface
+#endif
 
 #ifdef FUSED
 !
@@ -94,6 +129,32 @@
         forcey = zero
         forcez = zero
 !
+#ifdef GPU_NATIVE
+! ---- native GPU (HIP/CUDA) collision -------------------------------
+! Device pointers for the storage arrays are obtained from the enclosing
+! OpenMP `target data` region (see bgk3d.F90) and handed to the HIP/CUDA
+! launcher.  The boundary kernels keep running as OpenMP-offload kernels
+! on these very same device buffers.
+        nx_c = size(a01,1)
+        ny_c = size(a01,2)
+!$omp target data use_device_addr(                                      &
+!$omp&   a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                        &
+!$omp&   a11,a12,a13,a14,a15,a16,a17,a18,a19,                            &
+!$omp&   b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,                        &
+!$omp&   b11,b12,b13,b14,b15,b16,b17,b18)
+        call col_mc_gpu(                                                 &
+             a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                    &
+             a11,a12,a13,a14,a15,a16,a17,a18,a19,                        &
+             b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,                    &
+             b11,b12,b13,b14,b15,b16,b17,b18,                            &
+             int(l,c_int),int(m,c_int),int(n,c_int),                     &
+             int(nx_c,c_int),int(ny_c,c_int),                            &
+             real(omega,c_real),real(cte0,c_real),real(cte1,c_real),     &
+             real(p0,c_real),real(p1,c_real),real(p2,c_real),            &
+             real(rf,c_real),real(qf,c_real),real(tre,c_real),           &
+             real(forcex,c_real),real(forcey,c_real),real(forcez,c_real))
+!$omp end target data
+#else
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd collapse(3)
         do k = 1,n
@@ -364,6 +425,7 @@
         end do
         end do
         !$acc end parallel
+#endif
 #endif
 !
 ! fix: swap populations (pointers)
