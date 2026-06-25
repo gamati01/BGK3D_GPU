@@ -6,8 +6,9 @@
 //  the shared header col_MC_gpu.hpp (identical to the HIP back-end).
 //
 //  The Fortran caller (col_MC.F90, GPU_NATIVE path) passes DEVICE
-//  pointers obtained inside an OpenMP `target data use_device_addr`
-//  region, plus the scalar parameters by value.
+//  pointers obtained inside an OpenACC `host_data use_device` region
+//  (residency handled by OpenACC managed memory on NVIDIA), plus the
+//  scalar parameters by value.
 // ====================================================================
 #define USE_CUDA
 #include "col_MC_gpu.hpp"

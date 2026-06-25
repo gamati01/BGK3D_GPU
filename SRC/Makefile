@@ -391,14 +391,19 @@ hip: $(MOD0) $(MOD1) $(OBJ) $(OBJ4) col_MC_hip.o
 #
 #----------------------------------------------
 # Native GPU collision via CUDA (NVIDIA). Mirror of the HIP target.
+# On NVIDIA, data residency + boundary kernels are handled by OpenACC
+# (managed memory, like the `openacc` target); only the fused collision
+# (col_MC) is replaced by a native CUDA kernel.  Device pointers are
+# handed to the CUDA launcher via `!$acc host_data use_device` (see
+# col_MC.F90), so OpenMP offload is NOT used on the NVIDIA path.
 # Typical use (NVIDIA):
 #   make cuda NVIDIA=1 FUSED=1 LDC=1 NV_ARCH=sm_80
 # GPU power/energy monitoring (NVML) is backend-agnostic: just add
 # ENERGY=1 exactly as for the offload/openacc targets, e.g.
 #   make cuda NVIDIA=1 FUSED=1 LDC=1 ENERGY=1 NV_ARCH=sm_80
 # Results (energy in J, mean power in W) are written to RUN/bgk.perf.
-cuda: FOPT += $(OFFLOAD) -DGPU_NATIVE
-cuda: OPT  += $(OFFLOAD) -DGPU_NATIVE
+cuda: FOPT += $(OPENACC) -DGPU_NATIVE
+cuda: OPT  += $(OPENACC) -DGPU_NATIVE
 cuda: VER := cuda
 cuda: FC := $(SFC)
 cuda: CC := $(SCC)

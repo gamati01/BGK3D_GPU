@@ -10,9 +10,10 @@
 //
 //  The kernel reproduces the math of the Fortran collapse(3) loop
 //  exactly.  Memory is NOT owned here: the caller (col_MC.F90) hands us
-//  device pointers obtained from the OpenMP `target data` region via
-//  `use_device_addr`, so the same device buffers are shared with the
-//  OpenMP-offload boundary kernels.
+//  device pointers for the storage arrays.  Those addresses come from
+//  the GPU data environment that also drives the boundary kernels:
+//    - CUDA / NVIDIA : OpenACC  (`!$acc host_data use_device`, managed mem)
+//    - HIP  / AMD    : OpenMP   (`!$omp target data use_device_addr`)
 //
 //  Currently covered: default (LDC) config, optional uniform forcing
 //  (forcex/forcey/forcez), NOSHIFT handled through cte0/cte1.
@@ -232,10 +233,11 @@ static inline void col_mc_gpu_launch(const ColArrays& arr, const ColParams& p)
     col_mc_kernel<<<grid, block>>>(arr, p);
 #endif
 
-    // The boundary kernels (next iteration) run on the OpenMP-offload
-    // queue, which is distinct from this default GPU stream.  Synchronize
-    // so the collision results are visible before they execute, and so the
-    // Fortran-side collision timer measures the real kernel cost.
+    // The boundary kernels (next iteration) run on the OpenACC (NVIDIA) or
+    // OpenMP-offload (AMD) queue, which is distinct from this default GPU
+    // stream.  Synchronize so the collision results are visible before they
+    // execute, and so the Fortran-side collision timer measures the real
+    // kernel cost.
     GPU_CHECK(GPU_DEVICE_SYNC());
 }
 
