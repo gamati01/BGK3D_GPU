@@ -323,7 +323,7 @@ all: VER := serial
 all: FC := $(SFC)
 all: CC := $(SCC)
 all: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
-	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) -o ../RUN/bgk3d.$(VER).x
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) $(IMPL) $(LIB) $(FIX) $(if $(LIB1),-L$(LIB1)) -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
 	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)
 	@echo "further option: "$(FIX)
