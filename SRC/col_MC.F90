@@ -131,39 +131,37 @@
 !
 #ifdef GPU_NATIVE
 ! ---- native GPU (HIP/CUDA) collision -------------------------------
-! Device pointers for the storage arrays are obtained from the enclosing
-! GPU data environment and handed to the HIP/CUDA launcher.  The boundary
-! kernels keep running on these very same device buffers.
-!   * CUDA / NVIDIA : residency is handled by OpenACC (managed memory);
-!                     device addresses come from `!$acc host_data use_device`.
-!   * HIP  / AMD    : residency is handled by OpenMP offload; device
-!                     addresses come from `!$omp target data use_device_addr`.
+! Device addresses for the storage arrays are handed to the HIP/CUDA
+! launcher.  The boundary kernels keep running on these very same device
+! buffers (see the per-backend note just below).
         nx_c = size(a01,1)
         ny_c = size(a01,2)
+! Obtain the device addresses for the storage arrays.
+!   * CUDA / NVIDIA (managed memory): the arrays live in CUDA managed
+!     (unified) memory, so the host address is already valid on the
+!     device.  They are NOT in the OpenACC present table (there is no
+!     enclosing `!$acc data` region in the managed build), so a
+!     `host_data use_device` lookup would abort with
+!     "data in use_device clause was not found on device".  Hand the
+!     managed pointers straight to the launcher instead.  The optional
+!     NOMANAGED path keeps `host_data` for an explicit data region.
+!   * HIP  / AMD : residency is handled by OpenMP offload; device
+!     addresses come from `!$omp target data use_device_addr`.
 #ifdef OPENACC
+#ifdef NOMANAGED
 !$acc host_data use_device(                                             &
 !$acc&   a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                        &
 !$acc&   a11,a12,a13,a14,a15,a16,a17,a18,a19,                            &
 !$acc&   b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,                        &
 !$acc&   b11,b12,b13,b14,b15,b16,b17,b18)
-        call col_mc_gpu(                                                 &
-             a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                    &
-             a11,a12,a13,a14,a15,a16,a17,a18,a19,                        &
-             b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,                    &
-             b11,b12,b13,b14,b15,b16,b17,b18,                            &
-             int(l,c_int),int(m,c_int),int(n,c_int),                     &
-             int(nx_c,c_int),int(ny_c,c_int),                            &
-             real(omega,c_real),real(cte0,c_real),real(cte1,c_real),     &
-             real(p0,c_real),real(p1,c_real),real(p2,c_real),            &
-             real(rf,c_real),real(qf,c_real),real(tre,c_real),           &
-             real(forcex,c_real),real(forcey,c_real),real(forcez,c_real))
-!$acc end host_data
+#endif
 #else
 !$omp target data use_device_addr(                                      &
 !$omp&   a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                        &
 !$omp&   a11,a12,a13,a14,a15,a16,a17,a18,a19,                            &
 !$omp&   b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,                        &
 !$omp&   b11,b12,b13,b14,b15,b16,b17,b18)
+#endif
         call col_mc_gpu(                                                 &
              a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                    &
              a11,a12,a13,a14,a15,a16,a17,a18,a19,                        &
@@ -175,6 +173,11 @@
              real(p0,c_real),real(p1,c_real),real(p2,c_real),            &
              real(rf,c_real),real(qf,c_real),real(tre,c_real),           &
              real(forcex,c_real),real(forcey,c_real),real(forcez,c_real))
+#ifdef OPENACC
+#ifdef NOMANAGED
+!$acc end host_data
+#endif
+#else
 !$omp end target data
 #endif
 #else
