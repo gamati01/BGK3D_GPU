@@ -64,6 +64,9 @@
 #ifdef OFFLOAD
 !$omp target update from(a01,a03,a05,a08,a10,a12,a14,a17,a19)
 #endif
+#if defined(OPENACC) && defined(GPU_NATIVE)
+!$acc update self(a01,a03,a05,a08,a10,a12,a14,a17,a19)
+#endif
 !
         do k = kstart, kstop
            do j = jstart, jstop

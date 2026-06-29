@@ -40,6 +40,12 @@
 !$omp target update from(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, & 
 !$omp&                   a11,a12,a13,a14,a15,a16,a17,a18,a19)
 #endif
+#if defined(OPENACC) && defined(GPU_NATIVE)
+! native CUDA collision writes the device copy; pull it back to the host
+! before the VTK output reads the field (mirrors the OFFLOAD update above).
+!$acc update self(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, &
+!$acc&            a11,a12,a13,a14,a15,a16,a17,a18,a19)
+#endif
 # ifdef NO_BINARY
            call vtk_xy(itime)
 # else           
@@ -67,6 +73,12 @@
 #ifdef OFFLOAD
 !$omp target update from(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, & 
 !$omp&                   a11,a12,a13,a14,a15,a16,a17,a18,a19)
+#endif
+#if defined(OPENACC) && defined(GPU_NATIVE)
+! native CUDA collision writes the device copy; pull it back to the host
+! before the host-side checks read the field (mirrors the OFFLOAD update).
+!$acc update self(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, &
+!$acc&            a11,a12,a13,a14,a15,a16,a17,a18,a19)
 #endif
            call diagno(itime)
 #ifdef TGV3D
