@@ -39,6 +39,9 @@
         use timing
 #ifdef GPU_NATIVE
         use iso_c_binding
+#if !defined(OPENACC)
+        use omp_lib
+#endif
 #endif
 !
         implicit none
@@ -81,6 +84,11 @@
         integer, parameter :: c_real = c_float
 #endif
         integer :: nx_c, ny_c
+! Device base addresses for the 19 input (a*) and 18 output (b*) arrays.
+! They are rebuilt every step from the CURRENT host pointers so the
+! a<->b pointer swap (see end of this routine) is always honoured.
+        type(c_ptr) :: pa(19), pb(18)
+        integer     :: idev, ii
         interface
           subroutine col_mc_gpu(                                          &
               a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                    &
@@ -90,13 +98,15 @@
               l,m,n,nx,ny,                                               &
               omega,cte0,cte1,p0,p1,p2,rf,qf,tre,                         &
               forcex,forcey,forcez) bind(C, name="col_mc_gpu")
-            import :: c_real, c_int
-            real(c_real), dimension(*) :: a01,a02,a03,a04,a05,a06,a07
-            real(c_real), dimension(*) :: a08,a09,a10,a11,a12,a13,a14
-            real(c_real), dimension(*) :: a15,a16,a17,a18,a19
-            real(c_real), dimension(*) :: b01,b02,b03,b04,b05,b06,b07
-            real(c_real), dimension(*) :: b08,b09,b10,b11,b12,b13,b14
-            real(c_real), dimension(*) :: b15,b16,b17,b18
+            import :: c_real, c_int, c_ptr
+! Device pointers passed BY VALUE (a C `real_t*` argument).  Using c_ptr
+! instead of `dimension(*)` lets us hand over addresses we resolved
+! ourselves (omp_get_mapped_ptr / acc_deviceptr / managed host==device),
+! which is robust against the Fortran pointer swap.
+            type(c_ptr), value :: a01,a02,a03,a04,a05,a06,a07,a08,a09,a10
+            type(c_ptr), value :: a11,a12,a13,a14,a15,a16,a17,a18,a19
+            type(c_ptr), value :: b01,b02,b03,b04,b05,b06,b07,b08,b09,b10
+            type(c_ptr), value :: b11,b12,b13,b14,b15,b16,b17,b18
             integer(c_int), value :: l,m,n,nx,ny
             real(c_real), value :: omega,cte0,cte1,p0,p1,p2,rf,qf,tre
             real(c_real), value :: forcex,forcey,forcez
@@ -131,22 +141,39 @@
 !
 #ifdef GPU_NATIVE
 ! ---- native GPU (HIP/CUDA) collision -------------------------------
-! Device addresses for the storage arrays are handed to the HIP/CUDA
-! launcher.  The boundary kernels keep running on these very same device
-! buffers (see the per-backend note just below).
+! Resolve the DEVICE base address of every storage array from its
+! CURRENT host pointer and hand those device pointers to the HIP/CUDA
+! launcher.  Doing the translation ourselves (instead of relying on the
+! `use_device_addr` / `host_data` substitution) is mandatory here because
+! the FUSED scheme swaps the a*<->b* Fortran pointers at the end of every
+! step: a directive-based substitution does NOT track that swap and ends
+! up handing the SAME device buffer for both a and b on alternate steps,
+! aliasing the kernel input and output.  c_loc() always reflects the
+! current association, so the resolved pointers are correct every step.
         nx_c = size(a01,1)
         ny_c = size(a01,2)
-! Obtain the device addresses for the storage arrays.
-!   * CUDA / NVIDIA (managed memory): the arrays live in CUDA managed
-!     (unified) memory, so the host address is already valid on the
-!     device.  They are NOT in the OpenACC present table (there is no
-!     enclosing `!$acc data` region in the managed build), so a
-!     `host_data use_device` lookup would abort with
-!     "data in use_device clause was not found on device".  Hand the
-!     managed pointers straight to the launcher instead.  The optional
-!     NOMANAGED path keeps `host_data` for an explicit data region.
-!   * HIP  / AMD : residency is handled by OpenMP offload; device
-!     addresses come from `!$omp target data use_device_addr`.
+!
+! current host base addresses (follow the a<->b swap automatically)
+        pa( 1)=c_loc(a01); pa( 2)=c_loc(a02); pa( 3)=c_loc(a03)
+        pa( 4)=c_loc(a04); pa( 5)=c_loc(a05); pa( 6)=c_loc(a06)
+        pa( 7)=c_loc(a07); pa( 8)=c_loc(a08); pa( 9)=c_loc(a09)
+        pa(10)=c_loc(a10); pa(11)=c_loc(a11); pa(12)=c_loc(a12)
+        pa(13)=c_loc(a13); pa(14)=c_loc(a14); pa(15)=c_loc(a15)
+        pa(16)=c_loc(a16); pa(17)=c_loc(a17); pa(18)=c_loc(a18)
+        pa(19)=c_loc(a19)
+        pb( 1)=c_loc(b01); pb( 2)=c_loc(b02); pb( 3)=c_loc(b03)
+        pb( 4)=c_loc(b04); pb( 5)=c_loc(b05); pb( 6)=c_loc(b06)
+        pb( 7)=c_loc(b07); pb( 8)=c_loc(b08); pb( 9)=c_loc(b09)
+        pb(10)=c_loc(b10); pb(11)=c_loc(b11); pb(12)=c_loc(b12)
+        pb(13)=c_loc(b13); pb(14)=c_loc(b14); pb(15)=c_loc(b15)
+        pb(16)=c_loc(b16); pb(17)=c_loc(b17); pb(18)=c_loc(b18)
+!
+! translate host -> device addresses according to the residency model:
+!   * CUDA / NVIDIA managed : host address IS the device address.
+!   * CUDA / NVIDIA NOMANAGED: explicit `!$acc data` region -> device
+!                             address via `host_data use_device` + c_loc.
+!   * HIP  / AMD  (OpenMP)  : OpenMP target data -> omp_get_mapped_ptr,
+!                             keyed by the CURRENT host address (swap-safe).
 #ifdef OPENACC
 #ifdef NOMANAGED
 !$acc host_data use_device(                                             &
@@ -154,32 +181,43 @@
 !$acc&   a11,a12,a13,a14,a15,a16,a17,a18,a19,                            &
 !$acc&   b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,                        &
 !$acc&   b11,b12,b13,b14,b15,b16,b17,b18)
+        pa( 1)=c_loc(a01); pa( 2)=c_loc(a02); pa( 3)=c_loc(a03)
+        pa( 4)=c_loc(a04); pa( 5)=c_loc(a05); pa( 6)=c_loc(a06)
+        pa( 7)=c_loc(a07); pa( 8)=c_loc(a08); pa( 9)=c_loc(a09)
+        pa(10)=c_loc(a10); pa(11)=c_loc(a11); pa(12)=c_loc(a12)
+        pa(13)=c_loc(a13); pa(14)=c_loc(a14); pa(15)=c_loc(a15)
+        pa(16)=c_loc(a16); pa(17)=c_loc(a17); pa(18)=c_loc(a18)
+        pa(19)=c_loc(a19)
+        pb( 1)=c_loc(b01); pb( 2)=c_loc(b02); pb( 3)=c_loc(b03)
+        pb( 4)=c_loc(b04); pb( 5)=c_loc(b05); pb( 6)=c_loc(b06)
+        pb( 7)=c_loc(b07); pb( 8)=c_loc(b08); pb( 9)=c_loc(b09)
+        pb(10)=c_loc(b10); pb(11)=c_loc(b11); pb(12)=c_loc(b12)
+        pb(13)=c_loc(b13); pb(14)=c_loc(b14); pb(15)=c_loc(b15)
+        pb(16)=c_loc(b16); pb(17)=c_loc(b17); pb(18)=c_loc(b18)
+!$acc end host_data
 #endif
 #else
-!$omp target data use_device_addr(                                      &
-!$omp&   a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                        &
-!$omp&   a11,a12,a13,a14,a15,a16,a17,a18,a19,                            &
-!$omp&   b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,                        &
-!$omp&   b11,b12,b13,b14,b15,b16,b17,b18)
+        idev = omp_get_default_device()
+        do ii=1,19
+           pa(ii) = omp_get_mapped_ptr(pa(ii), idev)
+        enddo
+        do ii=1,18
+           pb(ii) = omp_get_mapped_ptr(pb(ii), idev)
+        enddo
 #endif
         call col_mc_gpu(                                                 &
-             a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,                    &
-             a11,a12,a13,a14,a15,a16,a17,a18,a19,                        &
-             b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,                    &
-             b11,b12,b13,b14,b15,b16,b17,b18,                            &
+             pa( 1),pa( 2),pa( 3),pa( 4),pa( 5),pa( 6),pa( 7),pa( 8),    &
+             pa( 9),pa(10),pa(11),pa(12),pa(13),pa(14),pa(15),pa(16),    &
+             pa(17),pa(18),pa(19),                                       &
+             pb( 1),pb( 2),pb( 3),pb( 4),pb( 5),pb( 6),pb( 7),pb( 8),    &
+             pb( 9),pb(10),pb(11),pb(12),pb(13),pb(14),pb(15),pb(16),    &
+             pb(17),pb(18),                                              &
              int(l,c_int),int(m,c_int),int(n,c_int),                     &
              int(nx_c,c_int),int(ny_c,c_int),                            &
              real(omega,c_real),real(cte0,c_real),real(cte1,c_real),     &
              real(p0,c_real),real(p1,c_real),real(p2,c_real),            &
              real(rf,c_real),real(qf,c_real),real(tre,c_real),           &
              real(forcex,c_real),real(forcey,c_real),real(forcez,c_real))
-#ifdef OPENACC
-#ifdef NOMANAGED
-!$acc end host_data
-#endif
-#else
-!$omp end target data
-#endif
 #else
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd collapse(3)
