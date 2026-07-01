@@ -1,0 +1,13 @@
+lx = 256
+ly = 256
+lz = 256
+svisc=0.0256
+u0=0.1
+itfin=100000
+ivtim=500000
+isignal=250
+itsave=500000
+icheck=20000
+irestart=0
+init_v=0   
+ipad=0        /
