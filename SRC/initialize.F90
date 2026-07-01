@@ -80,20 +80,26 @@
 !
        if(itrestart.eq.1) then
 !
+#ifdef PROFILING
+! start timing
           call time(tcountF0)
           call SYSTEM_CLOCK(countF0, count_rate, count_max)
+#endif
 !
           if(myrank == 0) then
              call restore_raw(itstart)
              write(*,*) "INFO: restoring at timestep ", itstart
           endif
 !
+#ifdef PROFILING
+! stop timing
           call SYSTEM_CLOCK(countF1, count_rate, count_max)
           call time(tcountF1)
           time_io = time_io + real(countF1-countF0)/(count_rate)
           time_io1 = time_io1 + tcountF1-tcountF0
+#endif
 !
-#ifdef DEBUG_1
+#if defined(DEBUG_1) && defined(PROFILING)
           if(myrank == 0) then
              write(6,*) "DEBUG1: I/O time (1)", real(countF1-countF0)/(count_rate)
              write(6,*) "DEBUG1: I/O time (2)", tcountF1-tcountF0

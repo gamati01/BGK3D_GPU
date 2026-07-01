@@ -34,8 +34,11 @@
         type(c_ptr) :: pa(19), pobs
 #endif
 !
+#ifdef PROFILING
+! start timing
         call SYSTEM_CLOCK(countO0, count_rate, count_max)
         call time(tcountO0)
+#endif
 !
 #if defined(GPU_NATIVE) && defined(OBSTACLE)
         call resolve_a_devptrs(pa)
@@ -93,11 +96,17 @@
 #endif
 #endif
 !
+#ifdef PROFILING
 ! stop timing
+#if defined(GPU_NATIVE) && defined(OBSTACLE)
+! flush the async native kernels so the CPU timer captures real GPU time
+        call gpu_device_sync()
+#endif
         call time(tcountO1)
         call SYSTEM_CLOCK(countO1, count_rate, count_max)
         time_obs = time_obs + real(countO1-countO0)/(count_rate)
         time_obs1 = time_obs1 + (tcountO1-tcountO0)
+#endif
 !
 #ifdef DEBUG_2
         if(myrank == 0) then

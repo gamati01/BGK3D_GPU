@@ -31,7 +31,10 @@
 ! write on external file some performance figure...
 !
       if(myrank == 0) then 
+#if defined(PROFILING) || defined(ENERGY)
          open(69,file='bgk.perf',  status='unknown')
+#endif
+#ifdef PROFILING
          write(69,9999) 
          write(69,*)  "# Run info "
          write(69,*)  l, m, n
@@ -69,7 +72,11 @@
          write(69,1110) mem_start, mem_stop
          write(69,*) (l/1024.0)*(m/1024.0)*(n/1024.0)*19*2*4
          write(69,9999) 
-         #ifdef ENERGY
+#endif
+#ifdef ENERGY
+! energy metrics: reported independently of PROFILING
+         write(69,9999)
+         write(69,*)  "# Energy metrics "
          write(69,1400) (energy0_2-energy0_1)/1000.0,  &
                         (energy0_2-energy0_1)/float(utime2-utime1)/1000.0
          write(69,1401) (energy1_2-energy1_1)/1000.0,  &
@@ -91,8 +98,11 @@
                                  /(float(n)*float(m)*float(l))
          write(69,9999)
 #endif
+#if defined(PROFILING) || defined(ENERGY)
          close(69)   ! bgk.perf
+#endif
 !
+! Mlups: ALWAYS printed to screen (uses the always-on loop timer)
          write(6,1106) float(l)*float(m)*float(n)* &
                        (itfin-itstart)/(time_loop1)/1000.0/1000.0
 !

@@ -34,10 +34,12 @@
 !
         if (mod(itime,ivtim).eq.0) then
 !
+#ifdef PROFILING
 ! start timing...
            call SYSTEM_CLOCK(countA0, count_rate, count_max)
 !           
            call time(tcountA0)
+#endif
 !
 #ifdef GPU_NATIVE
 ! native kernels ran on the default stream without a per-step barrier;
@@ -63,20 +65,24 @@
            call vtk_om_xy_bin(itime,n/2)
 # endif           
 !
+#ifdef PROFILING
 ! stop timing
            call time(tcountA1)
            call SYSTEM_CLOCK(countA1, count_rate, count_max)
            time_dg = time_dg + real(countA1-countA0)/(count_rate)
            time_dg1 = time_dg1 + (tcountA1-tcountA0)
+#endif
 !
         end if
 !
         if (mod(itime,icheck).eq.0) then
 !
+#ifdef PROFILING
 ! start timing...
            call SYSTEM_CLOCK(countA0, count_rate, count_max)
 !           
            call time(tcountA0)
+#endif
 !
 #ifdef GPU_NATIVE
 ! flush the default-stream native kernels before the host-side checks.
@@ -117,11 +123,13 @@
 !           call flush(68)            ! flush probe.dat
 !           call flush(88)            ! flush fort.88 (convergence)
 !
+#ifdef PROFILING
 ! stop timing
            call time(tcountA1)
            call SYSTEM_CLOCK(countA1, count_rate, count_max)
            time_dg = time_dg + real(countA1-countA0)/(count_rate)
            time_dg1 = time_dg1 + (tcountA1-tcountA0)
+#endif
 !
         endif   ! closing if with icheck 
 !

@@ -81,7 +81,9 @@
       open(64,file=file_name6, status='unknown')        ! prof_j
       open(65,file=file_name7, status='unknown')        ! prof_k
       open(66,file=file_name8, status='unknown')        ! drag
+#ifdef PROFILING
       open(99,file=file_name9, status='unknown')        ! bgk.time.log
+#endif
       open(77,file=file_name10, status='unknown')       ! dissipation.txt
 !
       open(63,file='diagno.dat',status='unknown')       ! diagno.dat

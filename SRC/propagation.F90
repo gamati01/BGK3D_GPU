@@ -25,23 +25,34 @@
 !
         use timing
         use storage
+#if defined(PROFILING) && defined(GPU_NATIVE)
+        use bcond_gpu_mod, only : gpu_device_sync
+#endif
 !
         implicit none
 !
 #ifdef FUSED
 ! do nothing
 #else
+#ifdef PROFILING
 ! start timing
         call SYSTEM_CLOCK(countB0, count_rate, count_max)
         call time(tcountB0)
+#endif
 !
         call movef
 !
+#ifdef PROFILING
 ! stop timing
+#ifdef GPU_NATIVE
+! flush the async native kernels so the CPU timer captures real GPU time
+        call gpu_device_sync()
+#endif
         call time(tcountB1)
         call SYSTEM_CLOCK(countB1, count_rate, count_max)
         time_move = time_move + real(countB1-countB0)/(count_rate)
         time_move1 = time_move1 + (tcountB1-tcountB0)
+#endif
 #endif
 !
 #ifdef DEBUG_2

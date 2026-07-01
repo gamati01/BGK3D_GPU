@@ -159,6 +159,22 @@ ifdef ENERGY
 endif
 #
 #----------------------------------------------
+# profiling / timing instrumentation (optional, opt-in)
+#----------------------------------------------
+# Enable with PROFILING=1 on the make command line, e.g.
+#   make cuda NVIDIA=1 FUSED=1 LDC=1 PROFILING=1 NV_ARCH=sm_80
+# When OFF (default) all per-phase timers are compiled out (zero overhead)
+# and neither bgk.time.log nor bgk.perf are written.
+# When ON, the phase timers run and, on the native GPU build, a device
+# barrier is issued before each timer stop so the CPU-side timers measure
+# real GPU kernel time instead of async launch overhead (serializes
+# CPU/GPU -> use for profiling only).
+ifdef PROFILING
+ FOPT += -DPROFILING
+ OPT  += -DPROFILING
+endif
+#
+#----------------------------------------------
 # precision used
 #----------------------------------------------
 #

@@ -30,8 +30,11 @@
       integer, INTENT(in) :: itime
 !
       call system("date")
+#ifdef PROFILING
+! start timing
       call time(tcountF0)
       call SYSTEM_CLOCK(countF0, count_rate, count_max)
+#endif
 !
 #ifdef VTK3D
       call save_vel(itime)
@@ -44,10 +47,13 @@
 !      call vtk_3d_bin(itime)
 !      call save_raw(itime)
 !
+#ifdef PROFILING
+! stop timing
       call SYSTEM_CLOCK(countF1, count_rate, count_max)
       call time(tcountF1)
       time_io = time_io + real(countF1-countF0)/(count_rate)
       time_io1 = time_io1 + tcountF1-tcountF0
+#endif
 !
 #ifdef MEM_CHECK
       if(myrank == 0) then

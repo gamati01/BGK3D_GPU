@@ -63,8 +63,10 @@
       INTEGER:: itime, itsave, icheck, itrestart, init_v
       INTEGER:: isignal
 !
+#ifdef PROFILING
       call SYSTEM_CLOCK(countH0, count_rate, count_max)
       call time(tcountH0)
+#endif
 !
 ! set up the simulation...
       call setup(itfin,ivtim,isignal,itsave,icheck,itrestart, &
@@ -128,16 +130,21 @@
 !$acc&            b11,b12,b13,b14,b15,b16,b17,b18,b19,obs)
 #endif
 !
+#ifdef PROFILING
       call SYSTEM_CLOCK(countH1, count_rate, count_max)
       call time(tcountH1)
       time_init =  real(countH1-countH0)/(count_rate)
       time_init1 = (tcountH1-tcountH0)
+#endif
 !
+! loop timer: ALWAYS on (needed for Mlups and progress, negligible cost)
       call SYSTEM_CLOCK(countE0, count_rate, count_max)
       call time(tcountE0)
 !
+#ifdef PROFILING
       call SYSTEM_CLOCK(countD0, count_rate, count_max)
       call time(tcountD0)
+#endif
 !
 ! main loop starts here.....
 !
@@ -167,10 +174,16 @@
 ! get macroscopic values
          call diagnostic(itime,ivtim,icheck,itsave)
 !
-! get timing/profiling values
+! progress / profiling report every isignal steps
          if (mod(itime,isignal).eq.0) then
             if (myrank == 0 ) then
+#ifdef PROFILING
                call profile(itime,itfin,isignal)
+#else
+! lightweight progress: iteration count + elapsed wall time (always on)
+               call SYSTEM_CLOCK(countE1, count_rate, count_max)
+               write(6,1002) itime, itfin, real(countE1-countE0)/(count_rate)
+#endif
             endif
          endif
       enddo
@@ -179,7 +192,7 @@
 ! timing just after the time loop
       utime2 = unix_time()
 !
-!     some global timings
+!     total loop time: ALWAYS on (needed for Mlups)
       call SYSTEM_CLOCK(countE1, count_rate, count_max)
       call time(tcountE1)
       time_loop = real(countE1-countE0)/(count_rate)
@@ -223,5 +236,8 @@
          call system("date       >> time.log")
          write(6,*) "That's all folks!!!!"
       endif
+!
+! format
+1002  format(" INFO: step ",i8," / ",i8,"   elapsed (s) =",e14.6)
 !
       end program bgk2d

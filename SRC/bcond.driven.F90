@@ -43,9 +43,11 @@
         type(c_ptr) :: pa(19)
 #endif
 !
+#ifdef PROFILING
 ! start timing...
         call SYSTEM_CLOCK(countA0, count_rate, count_max)
         call time(tcountA0)
+#endif
 !
         force =  u00/(6.0)
 !
@@ -166,11 +168,17 @@
 #endif
 #endif
 !
+#ifdef PROFILING
 ! stop timing
+#ifdef GPU_NATIVE
+! flush the async native kernels so the CPU timer captures real GPU time
+        call gpu_device_sync()
+#endif
         call time(tcountA1)
         call SYSTEM_CLOCK(countA1, count_rate, count_max)
         time_bc = time_bc + real(countA1-countA0)/(count_rate)
         time_bc1 = time_bc1 + (tcountA1-tcountA0)
+#endif
 !
 #ifdef DEBUG_2
         if(myrank == 0) then

@@ -26,18 +26,21 @@
 !
       integer:: itime, itfin, isignal
 ! 
+#ifdef PROFILING
 ! here I am signal
       call SYSTEM_CLOCK(countD1, count_rate, count_max)
       call time(tcountD1)
       time_inn_loop = real(countD1-countD0)/(count_rate)
       time_inn_loop1 = time_inn_loop1 + (tcountD1-tcountD0)
       write(6,1001)(time_inn_loop/float(isignal)),itime,itfin
+#endif
 
 #ifdef MEM_CHECK
       mem_stop = get_mem();
       write(6,*) "MEM_CHECK: iteration", itime, " mem =", mem_stop
 #endif
 !
+#ifdef PROFILING
 ! some info about time...
 #ifdef CRAY
        write(99,*) itime, (time_bc  -old1), &
@@ -64,6 +67,7 @@
 !
        call SYSTEM_CLOCK(countD0, count_rate, count_max)
        call time(tcountD0)
+#endif
 !
 ! formats...
 1001  format(" Mean   time",1(e14.6,1x),i8,"/",i8)
