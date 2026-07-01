@@ -108,7 +108,7 @@
                rtot = rtot+rho
                xtot = xtot+xj
                ytot = ytot+yj
-               ztot = ytot+zj
+               ztot = ztot+zj
                stot = stot+0.5*(xj*xj+yj*yj+zj*zj)
 !
             enddo
@@ -119,7 +119,7 @@
        rtot = (rtot/float(l))/float(m)/float(n)
        xtot = (xtot/float(l))/float(m)/float(n)
        ytot = (ytot/float(l))/float(m)/float(n)
-       ztot = (ytot/float(l))/float(m)/float(n)
+       ztot = (ztot/float(l))/float(m)/float(n)
        stot = (stot/float(l))/float(m)/float(n)
 !
        write(16,1001) itime
