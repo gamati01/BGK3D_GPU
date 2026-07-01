@@ -22,15 +22,53 @@
 !
         use timing
         use storage
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        use omp_lib
+#endif
 !
         implicit none
 !
         integer:: i,j,k
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        integer :: ni, nj, nk
+#  ifdef KS_BLOCK_3D
+        integer :: ntx, nty, ntz, nbx, nby, nbz
+#  else
+        integer :: tid, ncell, nthrd, nblck
+#  endif
+#endif
 !
         call SYSTEM_CLOCK(countO0, count_rate, count_max)
         call time(tcountO0)
 !
-#ifdef OFFLOAD
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        ni = imax - imin + 1
+        nj = jmax - jmin + 1
+        nk = kmax - kmin + 1
+#  ifdef KS_BLOCK_3D
+        ntx = 8
+        nty = 8
+        ntz = 4
+        nbx = (ni + ntx - 1)/ntx
+        nby = (nj + nty - 1)/nty
+        nbz = (nk + ntz - 1)/ntz
+!$omp target teams parallel thread_limit(dims(3):ntx,nty,ntz) num_teams(dims(3):nbx,nby,nbz)
+        i = imin + omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        j = jmin + omp_get_thread_num_dim(1) + omp_get_team_num_dim(1)*omp_get_num_threads_dim(1)
+        k = kmin + omp_get_thread_num_dim(2) + omp_get_team_num_dim(2)*omp_get_num_threads_dim(2)
+        if (i <= imax .and. j <= jmax .and. k <= kmax) then
+#  else
+        nthrd = 256
+        ncell = ni*nj*nk
+        nblck = (ncell + nthrd - 1)/nthrd
+!$omp target teams parallel num_threads(dims(3):nthrd) num_teams(dims(3):nblck) thread_limit(nthrd)
+        tid = omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        if (tid < ncell) then
+          i = imin + mod(tid, ni)
+          j = jmin + mod(tid/ni, nj)
+          k = kmin + tid/(ni*nj)
+#  endif
+#elif defined(OFFLOAD)
 !$OMP target teams distribute parallel do simd collapse(3)
         do k=kmin,kmax
         do j=jmin,jmax
@@ -64,15 +102,21 @@
                    a17(i,j,k) = a08(i  ,j-1,k  )
                    a18(i,j,k) = a09(i  ,j-1,k+1)
             endif
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        end if
+!$omp end target teams parallel
+#elif defined(OFFLOAD)
         end do
-#ifdef OFFLOAD
         end do
         end do
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
         end do
         end do
+        end do
 !$acc end parallel
+#else
+        end do
 #endif
 !
 ! stop timing

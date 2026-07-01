@@ -33,11 +33,22 @@
 !
         use timing
         use storage
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        use omp_lib
+#endif
 !
         implicit none
 !
         integer      :: i,j,k
         real(mykind) :: cte1
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        integer :: na, nb
+#  ifdef KS_BLOCK_3D
+        integer :: ntx, nty, nbx, nby
+#  else
+        integer :: tid, ncell, nthrd, nblck
+#  endif
+#endif
 !
 #ifdef CHANNEL
 !
@@ -60,7 +71,29 @@
 ! rear (x = 1)  ! front (x = n)
 ! ----------------------------------------------
 !
-#ifdef OFFLOAD
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        na = m + 2
+        nb = n + 2
+#  ifdef KS_BLOCK_3D
+        ntx = 16
+        nty = 16
+        nbx = (na + ntx - 1)/ntx
+        nby = (nb + nty - 1)/nty
+!$omp target teams parallel thread_limit(dims(3):ntx,nty,1) num_teams(dims(3):nbx,nby,1)
+        j = omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        k = omp_get_thread_num_dim(1) + omp_get_team_num_dim(1)*omp_get_num_threads_dim(1)
+        if (j <= m+1 .and. k <= n+1) then
+#  else
+        nthrd = 256
+        ncell = na*nb
+        nblck = (ncell + nthrd - 1)/nthrd
+!$omp target teams parallel num_threads(dims(3):nthrd) num_teams(dims(3):nblck) thread_limit(nthrd)
+        tid = omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        if (tid < ncell) then
+          j = mod(tid, na)
+          k = tid/na
+#  endif
+#elif defined(OFFLOAD)
 !$OMP target teams distribute parallel do simd collapse(2)
         do k=0,n+1
         do j=0,m+1
@@ -86,20 +119,48 @@
            a03(0,j,k)  = a03(l,j,k)
            a04(0,j,k)  = a04(l,j,k)
            a05(0,j,k)  = a05(l,j,k)
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        end if
+!$omp end target teams parallel
+#elif defined(OFFLOAD)
         end do
-#ifdef OFFLOAD
         end do
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
         end do
+        end do
 !$acc end parallel
+#else
+        end do
 #endif
 !
 ! ----------------------------------------------
 ! left (y = 1)  ! right (y = m) 
 ! ----------------------------------------------
 !
-#ifdef OFFLOAD
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        na = l + 2
+        nb = n + 2
+#  ifdef KS_BLOCK_3D
+        ntx = 16
+        nty = 16
+        nbx = (na + ntx - 1)/ntx
+        nby = (nb + nty - 1)/nty
+!$omp target teams parallel thread_limit(dims(3):ntx,nty,1) num_teams(dims(3):nbx,nby,1)
+        i = omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        k = omp_get_thread_num_dim(1) + omp_get_team_num_dim(1)*omp_get_num_threads_dim(1)
+        if (i <= l+1 .and. k <= n+1) then
+#  else
+        nthrd = 256
+        ncell = na*nb
+        nblck = (ncell + nthrd - 1)/nthrd
+!$omp target teams parallel num_threads(dims(3):nthrd) num_teams(dims(3):nblck) thread_limit(nthrd)
+        tid = omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        if (tid < ncell) then
+          i = mod(tid, na)
+          k = tid/na
+#  endif
+#elif defined(OFFLOAD)
 !$OMP target teams distribute parallel do simd collapse(2)
         do k=0,n+1
         do i=0,l+1
@@ -124,20 +185,48 @@
            a16(i,m1,k) = a16(i,1,k)
            a17(i,m1,k) = a17(i,1,k)
            a18(i,m1,k) = a18(i,1,k)
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        end if
+!$omp end target teams parallel
+#elif defined(OFFLOAD)
         enddo
-#ifdef OFFLOAD
         enddo
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
         enddo
+        enddo
 !$acc end parallel
+#else
+        enddo
 #endif
 !
 ! ----------------------------------------------
 ! down (z = 1)  ! top (z = n) 
 ! ----------------------------------------------
 !
-#ifdef OFFLOAD
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        na = l
+        nb = m
+#  ifdef KS_BLOCK_3D
+        ntx = 16
+        nty = 16
+        nbx = (na + ntx - 1)/ntx
+        nby = (nb + nty - 1)/nty
+!$omp target teams parallel thread_limit(dims(3):ntx,nty,1) num_teams(dims(3):nbx,nby,1)
+        i = 1 + omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        j = 1 + omp_get_thread_num_dim(1) + omp_get_team_num_dim(1)*omp_get_num_threads_dim(1)
+        if (i <= l .and. j <= m) then
+#  else
+        nthrd = 256
+        ncell = na*nb
+        nblck = (ncell + nthrd - 1)/nthrd
+!$omp target teams parallel num_threads(dims(3):nthrd) num_teams(dims(3):nblck) thread_limit(nthrd)
+        tid = omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        if (tid < ncell) then
+          i = 1 + mod(tid, na)
+          j = 1 + tid/na
+#  endif
+#elif defined(OFFLOAD)
 !$OMP target teams distribute parallel do simd collapse(2)
         do j=1,m
         do i=1,l
@@ -162,13 +251,19 @@
            a09(i  ,j-1,n1) = a18(i,j,n)
            a11(i+1,j  ,n1) = a04(i,j,n)
            a16(i  ,j+1,n1) = a07(i,j,n)
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        end if
+!$omp end target teams parallel
+#elif defined(OFFLOAD)
         enddo
-#ifdef OFFLOAD
         enddo
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
         enddo
+        enddo
 !$acc end parallel
+#else
+        enddo
 #endif
 
 !

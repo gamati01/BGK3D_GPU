@@ -42,12 +42,21 @@
 #if !defined(OPENACC)
         use omp_lib
 #endif
+#elif defined(OFFLOAD_KERNEL_SYNTAX)
+        use omp_lib
 #endif
 !
         implicit none
 !
         integer, intent(IN) :: itime
         integer             :: i,j,k
+#ifdef OFFLOAD_KERNEL_SYNTAX
+#  ifdef KS_BLOCK_3D
+        integer :: ntx, nty, ntz, nbx, nby, nbz
+#  else
+        integer :: tid, ncell, nthrd, nblck
+#  endif
+#endif
 !
         real(mykind) :: x,y,z
         real(mykind) :: pi
@@ -219,7 +228,31 @@
              real(rf,c_real),real(qf,c_real),real(tre,c_real),           &
              real(forcex,c_real),real(forcey,c_real),real(forcez,c_real))
 #else
-#ifdef OFFLOAD
+#ifdef OFFLOAD_KERNEL_SYNTAX
+#  ifdef KS_BLOCK_3D
+        ntx = 8
+        nty = 8
+        ntz = 4
+        nbx = (l + ntx - 1)/ntx
+        nby = (m + nty - 1)/nty
+        nbz = (n + ntz - 1)/ntz
+!$omp target teams parallel thread_limit(dims(3):ntx,nty,ntz) num_teams(dims(3):nbx,nby,nbz)
+        i = 1 + omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        j = 1 + omp_get_thread_num_dim(1) + omp_get_team_num_dim(1)*omp_get_num_threads_dim(1)
+        k = 1 + omp_get_thread_num_dim(2) + omp_get_team_num_dim(2)*omp_get_num_threads_dim(2)
+        if (i <= l .and. j <= m .and. k <= n) then
+#  else
+        nthrd = 256
+        ncell = l*m*n
+        nblck = (ncell + nthrd - 1)/nthrd
+!$omp target teams parallel num_threads(dims(3):nthrd) num_teams(dims(3):nblck) thread_limit(nthrd)
+        tid = omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        if (tid < ncell) then
+          i = mod(tid, l) + 1
+          j = mod(tid/l, m) + 1
+          k = tid/(l*m) + 1
+#  endif
+#elif defined(OFFLOAD)
 !$OMP target teams distribute parallel do simd collapse(3)
         do k = 1,n
         do j = 1,m
@@ -480,15 +513,21 @@
         b18(i,j,k) = x18 - omega*(x18-e18)          - forcey + forcez
         a19(i,j,k) = x19 - omega*(x19-e19)                           
 
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        end if
+!$omp end target teams parallel
+#elif defined(OFFLOAD)
         end do
-#ifdef OFFLOAD
         end do
         end do
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
         end do
         end do
+        end do
         !$acc end parallel
+#else
+        end do
 #endif
 #endif
 !
