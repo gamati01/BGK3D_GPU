@@ -28,6 +28,9 @@
        subroutine dissipation2(itime)
 !
        use storage
+#ifdef GPU_NATIVE
+       use bcond_gpu_mod, only : gpu_device_sync
+#endif
        implicit none
 !
        integer, INTENT(in) :: itime
@@ -67,6 +70,9 @@
        mean_v = zero
        mean_w = zero
 !
+#ifdef GPU_NATIVE
+       call gpu_device_sync()
+#endif
 #if defined(NOMANAGED) || (defined(OPENACC) && defined(GPU_NATIVE))
 !$acc update self(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, &
 !$acc&            a11,a12,a13,a14,a15,a16,a17,a18,a19)

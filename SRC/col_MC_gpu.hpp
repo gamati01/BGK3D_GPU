@@ -79,9 +79,24 @@ struct ColArrays {
 };
 
 // --------------------------------------------------------------------
-//  Device kernel: one thread per interior cell.
+//  Read-only (streamed) global load through the read-only data cache.
+//  The 18 "a" source buffers are never written by this kernel (outputs
+//  go to the distinct "b" buffers; only direction 19 aliases a19 and is
+//  loaded plainly below), so routing them through __ldg is safe and lets
+//  the hardware use the read-only cache path -- matching what the NVHPC
+//  OpenACC back-end does automatically for the `!$acc loop` version.
 // --------------------------------------------------------------------
-__global__ void col_mc_kernel(ColArrays arr, ColParams p)
+__device__ __forceinline__ real_t ldg_ro(const real_t* ptr, long idx)
+{
+    return __ldg(ptr + idx);
+}
+
+// --------------------------------------------------------------------
+//  Device kernel: one thread per interior cell.
+//  __launch_bounds__ caps the register target at the fixed 256-thread
+//  block so the many live temporaries don't crater occupancy.
+// --------------------------------------------------------------------
+__global__ void __launch_bounds__(256) col_mc_kernel(ColArrays arr, ColParams p)
 {
     const long tid = (long)blockIdx.x * blockDim.x + threadIdx.x;
     const long ncell = (long)p.l * p.m * p.n;
@@ -97,25 +112,25 @@ __global__ void col_mc_kernel(ColArrays arr, ColParams p)
     const long base = (long)i + nx * (long)j + nxy * (long)k;
 
     // gather the 19 streamed populations (matches Fortran offsets)
-    const real_t x01 = arr.a[0][base - 1 + nx];        // (i-1,j+1,k  )
-    const real_t x02 = arr.a[1][base - 1 + nxy];       // (i-1,j  ,k+1)
-    const real_t x03 = arr.a[2][base - 1 - nx];        // (i-1,j-1,k  )
-    const real_t x04 = arr.a[3][base - 1 - nxy];       // (i-1,j  ,k-1)
-    const real_t x05 = arr.a[4][base - 1];             // (i-1,j  ,k  )
-    const real_t x06 = arr.a[5][base - nxy];           // (i  ,j  ,k-1)
-    const real_t x07 = arr.a[6][base - nx - nxy];      // (i  ,j-1,k-1)
-    const real_t x08 = arr.a[7][base - nx];            // (i  ,j-1,k  )
-    const real_t x09 = arr.a[8][base - nx + nxy];      // (i  ,j-1,k+1)
-    const real_t x10 = arr.a[9][base + 1 + nx];        // (i+1,j+1,k  )
-    const real_t x11 = arr.a[10][base + 1 + nxy];      // (i+1,j  ,k+1)
-    const real_t x12 = arr.a[11][base + 1 - nx];       // (i+1,j-1,k  )
-    const real_t x13 = arr.a[12][base + 1 - nxy];      // (i+1,j  ,k-1)
-    const real_t x14 = arr.a[13][base + 1];            // (i+1,j  ,k  )
-    const real_t x15 = arr.a[14][base + nxy];          // (i  ,j  ,k+1)
-    const real_t x16 = arr.a[15][base + nx + nxy];     // (i  ,j+1,k+1)
-    const real_t x17 = arr.a[16][base + nx];           // (i  ,j+1,k  )
-    const real_t x18 = arr.a[17][base + nx - nxy];     // (i  ,j+1,k-1)
-    const real_t x19 = arr.a[18][base];                // (i  ,j  ,k  )
+    const real_t x01 = ldg_ro(arr.a[0],  base - 1 + nx);    // (i-1,j+1,k  )
+    const real_t x02 = ldg_ro(arr.a[1],  base - 1 + nxy);   // (i-1,j  ,k+1)
+    const real_t x03 = ldg_ro(arr.a[2],  base - 1 - nx);    // (i-1,j-1,k  )
+    const real_t x04 = ldg_ro(arr.a[3],  base - 1 - nxy);   // (i-1,j  ,k-1)
+    const real_t x05 = ldg_ro(arr.a[4],  base - 1);         // (i-1,j  ,k  )
+    const real_t x06 = ldg_ro(arr.a[5],  base - nxy);       // (i  ,j  ,k-1)
+    const real_t x07 = ldg_ro(arr.a[6],  base - nx - nxy);  // (i  ,j-1,k-1)
+    const real_t x08 = ldg_ro(arr.a[7],  base - nx);        // (i  ,j-1,k  )
+    const real_t x09 = ldg_ro(arr.a[8],  base - nx + nxy);  // (i  ,j-1,k+1)
+    const real_t x10 = ldg_ro(arr.a[9],  base + 1 + nx);    // (i+1,j+1,k  )
+    const real_t x11 = ldg_ro(arr.a[10], base + 1 + nxy);   // (i+1,j  ,k+1)
+    const real_t x12 = ldg_ro(arr.a[11], base + 1 - nx);    // (i+1,j-1,k  )
+    const real_t x13 = ldg_ro(arr.a[12], base + 1 - nxy);   // (i+1,j  ,k-1)
+    const real_t x14 = ldg_ro(arr.a[13], base + 1);         // (i+1,j  ,k  )
+    const real_t x15 = ldg_ro(arr.a[14], base + nxy);       // (i  ,j  ,k+1)
+    const real_t x16 = ldg_ro(arr.a[15], base + nx + nxy);  // (i  ,j+1,k+1)
+    const real_t x17 = ldg_ro(arr.a[16], base + nx);        // (i  ,j+1,k  )
+    const real_t x18 = ldg_ro(arr.a[17], base + nx - nxy);  // (i  ,j+1,k-1)
+    const real_t x19 = arr.a[18][base];                     // (i  ,j  ,k  ) aliases b[18], plain load
 
     const real_t cte0 = p.cte0;
     const real_t cte1 = p.cte1;
@@ -233,12 +248,12 @@ static inline void col_mc_gpu_launch(const ColArrays& arr, const ColParams& p)
     col_mc_kernel<<<grid, block>>>(arr, p);
 #endif
 
-    // The boundary kernels (next iteration) run on the OpenACC (NVIDIA) or
-    // OpenMP-offload (AMD) queue, which is distinct from this default GPU
-    // stream.  Synchronize so the collision results are visible before they
-    // execute, and so the Fortran-side collision timer measures the real
-    // kernel cost.
-    GPU_CHECK(GPU_DEVICE_SYNC());
+    // NOTE: no per-step device synchronization here.  The native boundary
+    // kernels (bcond_gpu.hpp) now run on the SAME default stream as this
+    // collision kernel, so ordering across the whole time step is implicit
+    // (kernels serialize in issue order).  A full-device barrier is issued
+    // only where the HOST reads device data (diagno / dissipation /
+    // draglift / save), via gpu_device_sync() on the Fortran side.
 }
 
 #endif // COL_MC_GPU_HPP

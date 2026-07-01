@@ -23,6 +23,9 @@
 !
         use storage
         use timing
+#ifdef GPU_NATIVE
+        use bcond_gpu_mod, only : gpu_device_sync
+#endif
         implicit none
 !
         integer, INTENT(IN) :: itime,ivtim,icheck,itsave
@@ -36,6 +39,11 @@
 !           
            call time(tcountA0)
 !
+#ifdef GPU_NATIVE
+! native kernels ran on the default stream without a per-step barrier;
+! flush them before the host pulls the field back for the VTK output.
+        call gpu_device_sync()
+#endif
 #ifdef OFFLOAD
 !$omp target update from(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, & 
 !$omp&                   a11,a12,a13,a14,a15,a16,a17,a18,a19)
@@ -70,6 +78,10 @@
 !           
            call time(tcountA0)
 !
+#ifdef GPU_NATIVE
+! flush the default-stream native kernels before the host-side checks.
+        call gpu_device_sync()
+#endif
 #ifdef OFFLOAD
 !$omp target update from(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10, & 
 !$omp&                   a11,a12,a13,a14,a15,a16,a17,a18,a19)

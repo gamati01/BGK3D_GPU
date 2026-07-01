@@ -30,17 +30,32 @@
 !
         use timing
         use storage
+#ifdef GPU_NATIVE
+        use iso_c_binding
+        use bcond_gpu_mod
+#endif
 !
         implicit none
 !
         integer      :: i,j,k
         real(mykind) :: force
+#ifdef GPU_NATIVE
+        type(c_ptr) :: pa(19)
+#endif
 !
 ! start timing...
         call SYSTEM_CLOCK(countA0, count_rate, count_max)
         call time(tcountA0)
 !
         force =  u00/(6.0)
+!
+#ifdef GPU_NATIVE
+        call resolve_a_devptrs(pa)
+        call bcond_driven_gpu(pa,                                       &
+             int(l,c_int),int(m,c_int),int(n,c_int),                    &
+             int(size(a01,1),c_int),int(size(a01,2),c_int),             &
+             real(force,c_real))
+#else
 !
 ! bc. along X direction
 !        
@@ -148,6 +163,7 @@
 #elif OPENACC
         enddo
 !$acc end parallel
+#endif
 #endif
 !
 ! stop timing

@@ -36,6 +36,10 @@
 !
         use timing
         use storage
+#ifdef GPU_NATIVE
+        use iso_c_binding
+        use bcond_gpu_mod
+#endif
 !
         implicit none
 !
@@ -45,6 +49,9 @@
         real(mykind) :: cx10,cx11,cx12,cx13,cx14
         real(mykind) :: cvsq,crho,rhoinv
         real(mykind) :: cte1
+#ifdef GPU_NATIVE
+        type(c_ptr) :: pa(19)
+#endif
 !
 #ifdef INFLOW
 !
@@ -60,6 +67,16 @@
         call time(tcountA0)
 !
         u_inflow=0.1
+!
+#ifdef GPU_NATIVE
+        call resolve_a_devptrs(pa)
+        call bcond_inflow_gpu(pa,                                       &
+             int(l,c_int),int(m,c_int),int(n,c_int),                    &
+             int(size(a01,1),c_int),int(size(a01,2),c_int),             &
+             real(u_inflow,c_real),real(rf,c_real),real(qf,c_real),     &
+             real(tre,c_real),real(p1,c_real),real(p2,c_real),          &
+             real(cte1,c_real))
+#else
 !        
 ! ----------------------------------------------
 ! loop fused for perfomance reason (on GPU)        
@@ -212,6 +229,7 @@
         enddo
 !$acc end parallel
 # endif
+#endif
 !        
 ! ----------------------------------------------
 ! stop timing

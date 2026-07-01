@@ -248,6 +248,7 @@ MOD0 = get_mem_mod.o \
 MOD1 = precision.o \
        $(GPU_IFACE_MOD) \
        storage.o \
+       bcond_gpu_mod.o \
        mod_tools.o \
        unixtime_module.o \
 
@@ -379,8 +380,8 @@ hip: OPT  += $(OFFLOAD) -DGPU_NATIVE
 hip: VER := hip
 hip: FC := $(SFC)
 hip: CC := $(SCC)
-hip: $(MOD0) $(MOD1) $(OBJ) $(OBJ4) col_MC_hip.o
-	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) col_MC_hip.o $(IMPL) $(FIX) $(LIB) -L$(LIB1) -L$(ROCM_PATH)/lib -lamdhip64 -lstdc++ -o ../RUN/bgk3d.$(VER).x
+hip: $(MOD0) $(MOD1) $(OBJ) $(OBJ4) col_MC_hip.o bcond_hip.o
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) col_MC_hip.o bcond_hip.o $(IMPL) $(FIX) $(LIB) -L$(LIB1) -L$(ROCM_PATH)/lib -lamdhip64 -lstdc++ -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
 	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)" HIP/"$(GFX_ARCH)
 	@echo "further option: "$(FIX)
@@ -407,8 +408,8 @@ cuda: OPT  += $(OPENACC) -DGPU_NATIVE
 cuda: VER := cuda
 cuda: FC := $(SFC)
 cuda: CC := $(SCC)
-cuda: $(MOD0) $(MOD1) $(OBJ) $(OBJ4) col_MC_cuda.o
-	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) col_MC_cuda.o $(IMPL) $(FIX) $(LIB) -L$(LIB1) -L$(CUDA_PATH)/lib64 -lcudart -lstdc++ -o ../RUN/bgk3d.$(VER).x
+cuda: $(MOD0) $(MOD1) $(OBJ) $(OBJ4) col_MC_cuda.o bcond_cuda.o
+	$(FC) $(OPT) $(MOD1) $(OBJ) $(OBJ4) col_MC_cuda.o bcond_cuda.o $(IMPL) $(FIX) $(LIB) -L$(LIB1) -L$(CUDA_PATH)/lib64 -lcudart -lstdc++ -o ../RUN/bgk3d.$(VER).x
 	@echo "-------------------------------------------------"
 	@echo "options: "$(CHECK1) $(CHECK2) $(CHECK3) $(CHECK4)" CUDA/"$(NV_ARCH)
 	@echo "further option: "$(FIX)
@@ -464,6 +465,13 @@ col_MC_hip.o: col_MC_hip.cpp col_MC_gpu.hpp
 
 col_MC_cuda.o: col_MC_cuda.cu col_MC_gpu.hpp
 	$(NVCC) -O3 -arch=$(NV_ARCH) $(PREC) $(FIX) -c col_MC_cuda.cu -o col_MC_cuda.o
+
+# Native GPU boundary-condition back-ends (kernels shared via bcond_gpu.hpp).
+bcond_hip.o: bcond_hip.cpp bcond_gpu.hpp
+	$(HIPCC) -O3 --offload-arch=$(GFX_ARCH) $(PREC) $(FIX) -c bcond_hip.cpp -o bcond_hip.o
+
+bcond_cuda.o: bcond_cuda.cu bcond_gpu.hpp
+	$(NVCC) -O3 -arch=$(NV_ARCH) $(PREC) $(FIX) -c bcond_cuda.cu -o bcond_cuda.o
 
 %.o %.mod: $(INC) %.f90
 	$(FC) $(FOPT) $(PREC) $(PREPROC) $(IMPL) $(FIX) -c $<

@@ -22,14 +22,31 @@
 !
         use timing
         use storage
+#if defined(GPU_NATIVE) && defined(OBSTACLE)
+        use iso_c_binding
+        use bcond_gpu_mod
+#endif
 !
         implicit none
 !
         integer:: i,j,k
+#if defined(GPU_NATIVE) && defined(OBSTACLE)
+        type(c_ptr) :: pa(19), pobs
+#endif
 !
         call SYSTEM_CLOCK(countO0, count_rate, count_max)
         call time(tcountO0)
 !
+#if defined(GPU_NATIVE) && defined(OBSTACLE)
+        call resolve_a_devptrs(pa)
+        call resolve_obs_devptr(pobs)
+        call bcond_obs_gpu(pa,pobs,                                     &
+             int(l,c_int),int(m,c_int),int(n,c_int),                    &
+             int(size(a01,1),c_int),int(size(a01,2),c_int),             &
+             int(imin,c_int),int(imax,c_int),int(jmin,c_int),           &
+             int(jmax,c_int),int(kmin,c_int),int(kmax,c_int),           &
+             int(l,c_int),int(m,c_int))
+#else
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd collapse(3)
         do k=kmin,kmax
@@ -73,6 +90,7 @@
         end do
         end do
 !$acc end parallel
+#endif
 #endif
 !
 ! stop timing

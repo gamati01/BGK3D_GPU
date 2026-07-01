@@ -27,6 +27,9 @@
         use storage
         use real_kinds
         use timing
+#ifdef GPU_NATIVE
+        use bcond_gpu_mod, only : gpu_device_sync
+#endif
 !
         implicit none
 !
@@ -77,6 +80,11 @@
         vy2m = zero
         vz2m = zero
 !        
+#ifdef GPU_NATIVE
+! flush the default-stream native kernels before the on-device reduction
+! reads the storage arrays on the OpenACC/OpenMP queue.
+        call gpu_device_sync()
+#endif
 #ifdef OFFLOAD
 !$OMP target teams distribute parallel do simd collapse(3)
         do k = 1,n

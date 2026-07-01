@@ -24,6 +24,9 @@
 !
         use storage
         use timing
+#ifdef GPU_NATIVE
+        use bcond_gpu_mod, only : gpu_device_sync
+#endif
         implicit none
 !
         integer             :: i,j,k
@@ -61,6 +64,9 @@
 ! computing drag (force along x) 
         forceX = zero
 !
+#ifdef GPU_NATIVE
+        call gpu_device_sync()
+#endif
 #ifdef OFFLOAD
 !$omp target update from(a01,a03,a05,a08,a10,a12,a14,a17,a19)
 #endif

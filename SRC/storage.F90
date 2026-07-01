@@ -126,7 +126,7 @@
         real(mystorage), dimension(:,:,:), allocatable :: b16,b17,b18,b19
 #endif
 !
-        integer, dimension(:,:,:), allocatable :: obs
+        integer, dimension(:,:,:), allocatable, target :: obs
         integer:: radius
 !
         real(mykind):: svisc, u0, u00, fgrad
