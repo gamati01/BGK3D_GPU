@@ -1,3 +1,4 @@
+&parameters
 lx = 256
 ly = 256
 lz = 256
@@ -9,5 +10,5 @@ isignal=250
 itsave=500000
 icheck=20000
 irestart=0
-init_v=0   
+init_v=0
 ipad=0        /
