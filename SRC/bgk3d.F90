@@ -121,7 +121,7 @@
       write(16,*) "INFO: Start Energy GPU3 =", utime1, energy3_1
 #endif
 !
-#ifdef NOMANAGED
+#if defined(NOMANAGED) || (defined(OPENACC) && defined(GPU_NATIVE))
 !$acc data copyin(a01,a02,a03,a04,a05,a06,a07,a08,a09,a10,   &
 !$acc&            a11,a12,a13,a14,a15,a16,a17,a18,a19,       &
 !$acc&            b01,b02,b03,b04,b05,b06,b07,b08,b09,b10,   &
@@ -213,7 +213,7 @@
 !$omp end target data
 #endif
 !
-#ifdef NOMANAGED
+#if defined(NOMANAGED) || (defined(OPENACC) && defined(GPU_NATIVE))
 !$acc end data
 #endif
 !
