@@ -56,6 +56,9 @@
       use timing
       use real_kinds
       use unix_time_mod
+#ifdef GPU_NATIVE
+      use bcond_gpu_mod, only : gpu_device_sync
+#endif
 !
       implicit none
 !
@@ -138,6 +141,10 @@
 #endif
 !
 ! loop timer: ALWAYS on (needed for Mlups and progress, negligible cost)
+#ifdef GPU_NATIVE
+! flush any pending async native kernels so the timer starts from a clean state
+      call gpu_device_sync()
+#endif
       call SYSTEM_CLOCK(countE0, count_rate, count_max)
       call time(tcountE0)
 !
@@ -193,6 +200,12 @@
       utime2 = unix_time()
 !
 !     total loop time: ALWAYS on (needed for Mlups)
+#ifdef GPU_NATIVE
+! drain the async native kernel queue so the wall-clock captures the real
+! GPU elapsed time (without this the host-side timer only measures the cost
+! of enqueuing kernel launches, making Mlups roughly constant vs. grid size)
+      call gpu_device_sync()
+#endif
       call SYSTEM_CLOCK(countE1, count_rate, count_max)
       call time(tcountE1)
       time_loop = real(countE1-countE0)/(count_rate)
