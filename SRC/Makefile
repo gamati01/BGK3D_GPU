@@ -12,6 +12,52 @@
 #		mulitcore -> Multicore CPU code
 #
 #----------------------------------------------
+# BUILD EXAMPLES (copy/paste)
+#----------------------------------------------
+# Notes:
+#  - Vendor: NVIDIA=1 or AMD=1 (GNU is the default if neither is set).
+#  - Precision defaults to SINGLE; override with DOUBLE=1 / MIXED1=1 / MIXED2=1.
+#  - A test case is required: LDC (cavity), POF, TGV, VKS, KVX, HIT.
+#  - Native GPU targets (cuda/hip) require the fused collision: FUSED=1.
+#  - GPU arch:  NVIDIA -> NV_ARCH=sm_80 ;  AMD -> GFX_ARCH=gfx942.
+#  - ENERGY=1    : GPU power/energy monitoring (NVML on NVIDIA, AMD SMI on AMD).
+#  - PROFILING=1 : per-phase timers (adds device barriers -> slower; profiling only).
+#
+# 1) OFFLOAD  (OpenMP target offload)
+#    NVIDIA:
+#      make offload NVIDIA=1 LDC=1
+#      make offload NVIDIA=1 LDC=1 ENERGY=1
+#      make offload NVIDIA=1 LDC=1 PROFILING=1
+#      make offload NVIDIA=1 LDC=1 ENERGY=1 PROFILING=1
+#    AMD:
+#      make offload AMD=1 GFX_ARCH=gfx942 LDC=1
+#      make offload AMD=1 GFX_ARCH=gfx942 LDC=1 ENERGY=1
+#      make offload AMD=1 GFX_ARCH=gfx942 LDC=1 PROFILING=1
+#      make offload AMD=1 GFX_ARCH=gfx942 LDC=1 ENERGY=1 PROFILING=1
+#
+# 2) NATIVE  (CUDA on NVIDIA, HIP on AMD; needs FUSED=1)
+#    NVIDIA (cuda):
+#      make cuda NVIDIA=1 FUSED=1 LDC=1 NV_ARCH=sm_80
+#      make cuda NVIDIA=1 FUSED=1 LDC=1 NV_ARCH=sm_80 ENERGY=1
+#      make cuda NVIDIA=1 FUSED=1 LDC=1 NV_ARCH=sm_80 PROFILING=1
+#      make cuda NVIDIA=1 FUSED=1 LDC=1 NV_ARCH=sm_80 ENERGY=1 PROFILING=1
+#    AMD (hip):
+#      make hip AMD=1 FUSED=1 LDC=1 GFX_ARCH=gfx942
+#      make hip AMD=1 FUSED=1 LDC=1 GFX_ARCH=gfx942 ENERGY=1
+#      make hip AMD=1 FUSED=1 LDC=1 GFX_ARCH=gfx942 PROFILING=1
+#      make hip AMD=1 FUSED=1 LDC=1 GFX_ARCH=gfx942 ENERGY=1 PROFILING=1
+#
+# 3) DO CONCURRENT  (stdpar GPU offload)
+#    NVIDIA:
+#      make doconcurrent NVIDIA=1 LDC=1
+#      make doconcurrent NVIDIA=1 LDC=1 ENERGY=1
+#      make doconcurrent NVIDIA=1 LDC=1 PROFILING=1
+#      make doconcurrent NVIDIA=1 LDC=1 ENERGY=1 PROFILING=1
+#    AMD:
+#      NOT SUPPORTED: the AMD vendor block sets DC = "not supported"
+#      (no stdpar GPU offload via amdflang here). Use the native HIP
+#      target (section 2, AMD) instead.
+#----------------------------------------------
 DATE = $(shell date +%d%m%y)
 FINE = "******** End Compilation step  *******"
 CHECK1 = NVIDIA
