@@ -260,6 +260,29 @@ ifdef FUSED
  CHECK3=FUSED
 endif
 #
+ifdef KSYNTAX
+ # The OpenMP Offload Kernel Language ("target teams parallel", the
+ # omp_get_*_dim runtime API and the num_teams/num_threads dims(N) modifier)
+ # needs OpenMP 6.1, so bump the version.
+ IMPL += -DOFFLOAD_KERNEL_SYNTAX -fopenmp-version=61
+ CHECK3 := $(CHECK3)+KSYNTAX
+ # Tag the executable name so the kernel-syntax build is distinguishable
+ # (e.g. ../RUN/bgk3d.offload_ksyntax.x).
+ KSYNTAX_SUFFIX := _ksyntax
+ # Kernel Syntax needs the upstream LLVM flang/clang (module: aomp_ksyntax),
+ # which provides the OpenMP Offload Kernel Language; swap the AMD drivers
+ # (amdflang/amdclang) for flang/clang while keeping the other flags.
+ SFC := $(subst amdflang,flang,$(SFC))
+ SCC := $(subst amdclang,clang,$(SCC))
+ # Optional 3D thread block (8x8x4) variant of the kernel-syntax loops, for
+ # benchmarking against the default 1D-flat (256x1x1) launch: make ... KSYNTAX=1 KS3D=1
+ ifdef KS3D
+  IMPL += -DKS_BLOCK_3D
+  CHECK3 := $(CHECK3)+3D
+  KSYNTAX_SUFFIX := _ksyntax_3d
+ endif
+endif
+#
 #
 #----------------------------------------------
 # test case
@@ -414,7 +437,7 @@ doconcurrent: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 #----------------------------------------------
 offload: FOPT += $(OFFLOAD)
 offload: OPT  += $(OFFLOAD)
-offload: VER := offload
+offload: VER := offload$(KSYNTAX_SUFFIX)
 offload: FC := $(SFC)
 offload: CC := $(SCC)
 offload:$(MOD0) $(MOD1) $(OBJ) $(OBJ4)

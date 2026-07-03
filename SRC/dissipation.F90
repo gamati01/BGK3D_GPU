@@ -8,13 +8,13 @@
 !       dissipation
 !     DESCRIPTION
 !       diagnostic subroutine:
-!       computing 
+!       computing
 !               * dissipation
 !               * turbulent kinetic energy and other stuff
 !       for HIT test case
 !       using LBM stress tensor
 !     INPUTS
-!       itime --> timestep 
+!       itime --> timestep
 !     TODO
 !
 !     NOTES
@@ -29,12 +29,21 @@
         use timing
 #ifdef GPU_NATIVE
         use bcond_gpu_mod, only : gpu_device_sync
+#elif OFFLOAD_KERNEL_SYNTAX
+        use omp_lib
 #endif
 !
         implicit none
 !
         integer, intent(IN) :: itime
         integer             :: i,j,k
+#ifdef OFFLOAD_KERNEL_SYNTAX
+#  ifdef KS_BLOCK_3D
+        integer :: ntx, nty, ntz, nbx, nby, nbz
+#  else
+        integer :: tid, ncell, nthrd, nblck
+#  endif
+#endif
 !
         real(mykind) :: x,y,z
         real(mykind) :: pi
@@ -61,9 +70,9 @@
         real(mykind) :: Ptotal
         real(mykind) :: diss, tke, kolmog
         real(mykind) :: dt, dx
-!        
+!
         parameter(pi=3.141592653589793238462643383279)
-!        
+!
 !
 #ifdef NOSHIFT
         cte1 = zero
@@ -79,13 +88,37 @@
         vx2m = zero
         vy2m = zero
         vz2m = zero
-!        
+!
 #ifdef GPU_NATIVE
 ! flush the default-stream native kernels before the on-device reduction
 ! reads the storage arrays on the OpenACC/OpenMP queue.
         call gpu_device_sync()
 #endif
-#ifdef OFFLOAD
+#ifdef OFFLOAD_KERNEL_SYNTAX
+#  ifdef KS_BLOCK_3D
+        ntx = 8
+        nty = 8
+        ntz = 4
+        nbx = (l + ntx - 1)/ntx
+        nby = (m + nty - 1)/nty
+        nbz = (n + ntz - 1)/ntz
+!$omp target teams parallel thread_limit(dims(3):ntx,nty,ntz) num_teams(dims(3):nbx,nby,nbz) reduction(+:diss,tke,vx2m,vy2m,vz2m)
+        i = 1 + omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        j = 1 + omp_get_thread_num_dim(1) + omp_get_team_num_dim(1)*omp_get_num_threads_dim(1)
+        k = 1 + omp_get_thread_num_dim(2) + omp_get_team_num_dim(2)*omp_get_num_threads_dim(2)
+        if (i <= l .and. j <= m .and. k <= n) then
+#  else
+        nthrd = 256
+        ncell = l*m*n
+        nblck = (ncell + nthrd - 1)/nthrd
+!$omp target teams parallel num_threads(dims(3):nthrd) num_teams(dims(3):nblck) thread_limit(nthrd) reduction(+:diss,tke,vx2m,vy2m,vz2m)
+        tid = omp_get_thread_num_dim(0) + omp_get_team_num_dim(0)*omp_get_num_threads_dim(0)
+        if (tid < ncell) then
+          i = mod(tid, l) + 1
+          j = mod(tid/l, m) + 1
+          k = tid/(l*m) + 1
+#  endif
+#elif defined(OFFLOAD)
 !$OMP target teams distribute parallel do simd collapse(3)
         do k = 1,n
         do j = 1,m
@@ -129,7 +162,7 @@
            vx = (x01+x02+x03+x04+x05-x10-x11-x12-x13-x14)*rhoinv
            vy = (x03+x07+x08+x09+x12-x01-x10-x16-x17-x18)*rhoinv
            vz = (x04+x06+x07+x13+x18-x02-x09-x11-x15-x16)*rhoinv
-!           
+!
 ! Quadratic terms
            vx2 = vx*vx
            vy2 = vy*vy
@@ -141,7 +174,7 @@
 !
            vsq = vx2+vy2+vz2
 !
-           tke = tke + 0.5*vsq           
+           tke = tke + 0.5*vsq
 !
            vxpy = vx+vy
            qxpy = cte0+qf*(tre*vxpy*vxpy-vsq)
@@ -227,7 +260,7 @@
                  n11 + &
                  n12 + &
                  n13 + &
-                 n14 
+                 n14
 !
            Pyy = n01 + &
                  n03 + &
@@ -238,7 +271,7 @@
                  n12 + &
                  n16 + &
                  n17 + &
-                 n18 
+                 n18
         !
            Pzz = n02 + &
                  n04 + &
@@ -249,47 +282,52 @@
                  n13 + &
                  n15 + &
                  n16 + &
-                 n18 
+                 n18
         !
            Pxz = -n02 &
                  +n04 &
                  +n11 &
-                 -n13 
+                 -n13
         !
            Pxy = -n01 &
                  +n03 &
                  +n10 &
-                 -n12 
+                 -n12
         !
            Pyz = +n07 &
                  -n09 &
                  +n16 &
-                 -n18 
+                 -n18
         !
            Pyx = Pxy
            Pzx = Pxz
            Pzy = Pyz
-        !           
+        !
         ! calculate Pi total
            Ptotal =(Pxx)**2 + (Pyy)**2 + (Pzz)**2 + &
                    (due*Pxy*Pyx)                  + &
                    (due*Pxz*Pzx)                  + &
                    (due*Pyz*Pzy)
-        !           
+        !
            diss = diss + due*svisc*Ptotal
+#ifdef OFFLOAD_KERNEL_SYNTAX
+        end if
+!$omp end target teams parallel
+#elif defined(OFFLOAD)
         end do
-        #ifdef OFFLOAD
         end do
         end do
-
 !$OMP end target teams distribute parallel do simd
 #elif OPENACC
         end do
         end do
+        end do
 !$acc end parallel
+#else
+        end do
 #endif
 ! write results (dissipation.dat)
-! # timestep, time, tke, dissipation, kolmogorov lenght        
+! # timestep, time, tke, dissipation, kolmogorov lenght
         kolmog = ((svisc**3)/diss/float(l)/float(m)/float(n))**(0.25)
         write(77,1004) itime                          &
                      , float(itime)*dt                &
@@ -297,9 +335,9 @@
                      , diss/float(l)/float(m)/float(n)/(u00*u00) &
                      , vx2m/float(l)/float(m)/float(n)/(u00*u00) &
                      , vy2m/float(l)/float(m)/float(n)/(u00*u00) &
-                     , vz2m/float(l)/float(m)/float(n)/(u00*u00) 
-!                            
-        flush(77)      
+                     , vz2m/float(l)/float(m)/float(n)/(u00*u00)
+!
+        flush(77)
 !
 1004    format(i8,6(e14.6,1x))
 !
