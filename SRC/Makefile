@@ -35,6 +35,27 @@
 #      make offload AMD=1 GFX_ARCH=gfx942 LDC=1 PROFILING=1
 #      make offload AMD=1 GFX_ARCH=gfx942 LDC=1 ENERGY=1 PROFILING=1
 #
+# 1b) OFFLOAD KERNEL SYNTAX  (OpenMP Offload Kernel Language)
+#    Adds KSYNTAX=1 to the offload target. This selects the
+#    "target teams parallel" kernel-language loops, the omp_get_*_dim
+#    runtime API and the num_teams/num_threads dims(N) modifier.
+#    Requirements / notes:
+#      - Needs OpenMP 6.1, so the build injects -fopenmp-version=61.
+#      - Needs the upstream LLVM flang/clang (module: aomp_ksyntax); the
+#        Makefile automatically swaps amdflang/amdclang for flang/clang.
+#      - The executable name is tagged (../RUN/bgk3d.offload_ksyntax.x)
+#        so it does not clobber the plain offload build.
+#      - Add KS3D=1 for the 3D thread-block (8x8x4) launch variant, which
+#        instead builds ../RUN/bgk3d.offload_ksyntax_3d.x.
+#    AMD:
+#      make offload AMD=1 GFX_ARCH=gfx942 LDC=1 KSYNTAX=1
+#      make offload AMD=1 GFX_ARCH=gfx942 LDC=1 KSYNTAX=1 KS3D=1
+#      make offload AMD=1 GFX_ARCH=gfx942 LDC=1 KSYNTAX=1 ENERGY=1
+#      make offload AMD=1 GFX_ARCH=gfx942 LDC=1 KSYNTAX=1 PROFILING=1
+#    NVIDIA:
+#      make offload NVIDIA=1 LDC=1 KSYNTAX=1
+#      make offload NVIDIA=1 LDC=1 KSYNTAX=1 KS3D=1
+#
 # 2) NATIVE  (CUDA on NVIDIA, HIP on AMD; needs FUSED=1)
 #    NVIDIA (cuda):
 #      make cuda NVIDIA=1 FUSED=1 LDC=1 NV_ARCH=sm_80
