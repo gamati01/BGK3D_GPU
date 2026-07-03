@@ -24,13 +24,13 @@ module timing
       REAL(sp):: time_inn_loop, time_inn_loop1
       REAL(sp):: timeZ, timeY, timeX
 !
-      INTEGER :: count_rate, count_max
-      INTEGER :: count1, count0
-      INTEGER :: count2, count3
-      INTEGER :: countA0, countB0, countC0, countD0, countE0, countF0, countO0
-      INTEGER :: countA1, countB1, countC1, countD1, countE1, countF1, countO1
-      INTEGER :: countH0
-      INTEGER :: countH1
+      INTEGER(8) :: count_rate, count_max
+      INTEGER(8) :: count1, count0
+      INTEGER(8) :: count2, count3
+      INTEGER(8) :: countA0, countB0, countC0, countD0, countE0, countF0, countO0
+      INTEGER(8) :: countA1, countB1, countC1, countD1, countE1, countF1, countO1
+      INTEGER(8) :: countH0
+      INTEGER(8) :: countH1
 !
       REAL(mykind) :: tcount1, tcount0
       REAL(mykind) :: tcount2, tcount3

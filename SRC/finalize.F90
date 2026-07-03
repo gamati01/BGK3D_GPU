@@ -60,7 +60,7 @@
          write(69,9999) 
          write(69,*)  "# Derived (global) metrics "
          write(69,1106) float(l)*float(m)*float(n)* &
-                        (itfin-itstart)/(time_loop1)/1000.0/1000.0
+                        (itfin-itstart)/(time_loop)/1000.0/1000.0
          write(69,1107) float(250)*float(l)*float(m)*float(n)*  &
                         (itfin-itstart)/(time_coll)/1000.0/1000.0
          write(69,1108) float(9*8)*float(l)*float(m)*float(n)* &
@@ -104,7 +104,7 @@
 !
 ! Mlups: ALWAYS printed to screen (uses the always-on loop timer)
          write(6,1106) float(l)*float(m)*float(n)* &
-                       (itfin-itstart)/(time_loop1)/1000.0/1000.0
+                       (itfin-itstart)/(time_loop)/1000.0/1000.0
 !
       endif
 !
