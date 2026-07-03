@@ -304,6 +304,21 @@ ifdef KSYNTAX
  endif
 endif
 #
+# Build the plain OpenMP-offload kernels with the upstream LLVM flang/clang
+# (module: aomp_ksyntax) instead of the AMD amdflang/amdclang drivers, e.g.
+# to compare flang vs amdflang performance on the SAME offload code:
+#   make offload AMD=1 FLANG=1 FUSED=1 GFX_ARCH=gfx942 LDC=1 ENERGY=1
+# (KSYNTAX already performs this driver swap; FLANG lets you do it for the
+#  standard "target teams distribute parallel do simd" kernels too.)
+ifdef FLANG
+ SFC := $(subst amdflang,flang,$(SFC))
+ SCC := $(subst amdclang,clang,$(SCC))
+ CHECK1 := $(CHECK1)+FLANG
+ # Tag the executable so the flang build is distinguishable and does not
+ # clobber the amdflang one (e.g. ../RUN/bgk3d.offload_flang.x).
+ FLANG_SUFFIX := _flang
+endif
+#
 #
 #----------------------------------------------
 # test case
@@ -458,7 +473,7 @@ doconcurrent: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 #----------------------------------------------
 offload: FOPT += $(OFFLOAD)
 offload: OPT  += $(OFFLOAD)
-offload: VER := offload$(KSYNTAX_SUFFIX)
+offload: VER := offload$(KSYNTAX_SUFFIX)$(FLANG_SUFFIX)
 offload: FC := $(SFC)
 offload: CC := $(SCC)
 offload:$(MOD0) $(MOD1) $(OBJ) $(OBJ4)
