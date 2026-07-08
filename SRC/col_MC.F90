@@ -47,6 +47,9 @@
 #endif
 !
         implicit none
+#ifdef UNIFIED_MEMORY
+!$omp requires unified_shared_memory
+#endif
 !
         integer, intent(IN) :: itime
         integer             :: i,j,k
@@ -206,6 +209,7 @@
 !$acc end host_data
 #endif
 #else
+#ifndef UNIFIED_MEMORY
         idev = omp_get_default_device()
         do ii=1,19
            pa(ii) = omp_get_mapped_ptr(pa(ii), idev)
@@ -213,6 +217,9 @@
         do ii=1,18
            pb(ii) = omp_get_mapped_ptr(pb(ii), idev)
         enddo
+#endif
+        ! UNIFIED_MEMORY (e.g. MI300A): host address IS the device address,
+        ! so pa/pb keep the c_loc host pointers resolved above (no lookup).
 #endif
         call col_mc_gpu(                                                 &
              pa( 1),pa( 2),pa( 3),pa( 4),pa( 5),pa( 6),pa( 7),pa( 8),    &
@@ -253,7 +260,12 @@
           k = tid/(l*m) + 1
 #  endif
 #elif defined(OFFLOAD)
-!$OMP target teams distribute parallel do simd collapse(3)
+!$OMP target teams distribute parallel do simd collapse(3)                &
+!$OMP private(x,y,z,x01,x02,x03,x04,x05,x06,x07,x08,x09,x10,x11,x12,      &
+!$OMP         x13,x14,x15,x16,x17,x18,x19,e01,e02,e03,e04,e05,e06,e07,    &
+!$OMP         e08,e09,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,rho,rhoinv, &
+!$OMP         vx,vy,vz,vx2,vy2,vz2,vsq,rp0,rp1,rp2,vxpz,vxmz,vxpy,vxmy,   &
+!$OMP         vypz,vymz,qx,qy,qz,q0,qxpz,qxmz,qxpy,qxmy,qypz,qymz)
         do k = 1,n
         do j = 1,m
         do i = 1,l

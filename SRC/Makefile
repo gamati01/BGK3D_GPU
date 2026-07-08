@@ -319,6 +319,26 @@ ifdef FLANG
  FLANG_SUFFIX := _flang
 endif
 #
+# Unified Shared Memory (USM) residency, for APUs such as AMD MI300A where
+# the CPU and GPU share a single physical HBM pool.  When set:
+#   * every offload translation unit declares `!$omp requires
+#     unified_shared_memory`, so map clauses become zero-copy (no separate
+#     device allocation);
+#   * the native GPU (hip) path passes HOST addresses straight to the HIP
+#     kernels instead of calling omp_get_mapped_ptr (which returns NULL
+#     under USM and would fault the kernels).
+# Requires XNACK: build for an xnack-enabled arch and enable it at runtime:
+#   make offload AMD=1 USM=1 FUSED=1 GFX_ARCH=gfx942:xnack+ LDC=1 ENERGY=1
+#   make hip     AMD=1 USM=1 FUSED=1 GFX_ARCH=gfx942:xnack+ LDC=1
+#   export HSA_XNACK=1        # at run time
+ifdef USM
+ IMPL += -DUNIFIED_MEMORY
+ CHECK1 := $(CHECK1)+USM
+ # Tag the executable so the USM build does not clobber the discrete one
+ # (e.g. ../RUN/bgk3d.offload_usm.x, ../RUN/bgk3d.hip_usm.x).
+ USM_SUFFIX := _usm
+endif
+#
 #
 #----------------------------------------------
 # test case
@@ -473,7 +493,7 @@ doconcurrent: $(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 #----------------------------------------------
 offload: FOPT += $(OFFLOAD)
 offload: OPT  += $(OFFLOAD)
-offload: VER := offload$(KSYNTAX_SUFFIX)$(FLANG_SUFFIX)
+offload: VER := offload$(KSYNTAX_SUFFIX)$(FLANG_SUFFIX)$(USM_SUFFIX)
 offload: FC := $(SFC)
 offload: CC := $(SCC)
 offload:$(MOD0) $(MOD1) $(OBJ) $(OBJ4)
@@ -498,7 +518,7 @@ offload:$(MOD0) $(MOD1) $(OBJ) $(OBJ4)
 # Results (energy in J, mean power in W) are written to RUN/bgk.perf.
 hip: FOPT += $(OFFLOAD) -DGPU_NATIVE
 hip: OPT  += $(OFFLOAD) -DGPU_NATIVE
-hip: VER := hip
+hip: VER := hip$(USM_SUFFIX)
 hip: FC := $(SFC)
 hip: CC := $(SCC)
 hip: $(MOD0) $(MOD1) $(OBJ) $(OBJ4) col_MC_hip.o bcond_hip.o

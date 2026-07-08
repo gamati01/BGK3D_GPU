@@ -27,6 +27,9 @@
         use bcond_gpu_mod, only : gpu_device_sync
 #endif
         implicit none
+#ifdef UNIFIED_MEMORY
+!$omp requires unified_shared_memory
+#endif
 !
         integer, INTENT(IN) :: itime,ivtim,icheck,itsave
 !

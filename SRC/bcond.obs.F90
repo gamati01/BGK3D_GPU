@@ -30,6 +30,9 @@
 #endif
 !
         implicit none
+#ifdef UNIFIED_MEMORY
+!$omp requires unified_shared_memory
+#endif
 !
         integer:: i,j,k
 #if defined(GPU_NATIVE) && defined(OBSTACLE)

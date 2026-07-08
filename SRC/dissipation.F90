@@ -34,6 +34,9 @@
 #endif
 !
         implicit none
+#ifdef UNIFIED_MEMORY
+!$omp requires unified_shared_memory
+#endif
 !
         integer, intent(IN) :: itime
         integer             :: i,j,k

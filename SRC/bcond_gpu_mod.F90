@@ -109,10 +109,14 @@
 #endif
           ! managed memory: host address IS the device address (no-op)
 #else
+#ifndef UNIFIED_MEMORY
           idev = omp_get_default_device()
           do ii=1,19
              pa(ii) = omp_get_mapped_ptr(pa(ii), idev)
           enddo
+#endif
+          ! UNIFIED_MEMORY (e.g. MI300A): host address IS the device
+          ! address, so pa keeps the c_loc host pointers resolved above.
 #endif
         end subroutine resolve_a_devptrs
 !
@@ -131,8 +135,11 @@
 !$acc end host_data
 #endif
 #else
+#ifndef UNIFIED_MEMORY
           idev = omp_get_default_device()
           pobs = omp_get_mapped_ptr(pobs, idev)
+#endif
+          ! UNIFIED_MEMORY (e.g. MI300A): host address IS the device address.
 #endif
         end subroutine resolve_obs_devptr
 #endif

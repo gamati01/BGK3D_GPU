@@ -61,6 +61,9 @@
 #endif
 !
       implicit none
+#ifdef UNIFIED_MEMORY
+!$omp requires unified_shared_memory
+#endif
 !
       INTEGER:: itfin, itstart, ivtim
       INTEGER:: itime, itsave, icheck, itrestart, init_v
@@ -233,6 +236,7 @@
       call varm(itime-1)
       call prof_i(itime-1,m/2,n/2)
       call prof_j(itime-1,l/2,n/2)
+      call prof_k(itime-1,l/2,m/2)
 !      call vtk_3d_bin(itime-1)
 !
 #ifdef OFFLOAD
