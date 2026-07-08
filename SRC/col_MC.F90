@@ -11,7 +11,7 @@
 !       forcing is included and is proportional to u_0
 !       MOVE + COLLIDE version
 !     INPUTS
-!       itime --> timestep 
+!       itime --> timestep
 !     TODO
 !
 !     NOTES
@@ -81,7 +81,7 @@
         real(mykind) :: cte1,cte0
         real(mykind) :: Pxx,Pyy,Pzz,Pxy,Pyx,Pxz,Pzx,Pyz,Pzy
         real(mykind) :: Ptotal,Ts
-!        
+!
                 parameter(pi=3.141592653589793238462643383279)
 !
 #ifdef GPU_NATIVE
@@ -143,7 +143,7 @@
 #endif
         cte0 = uno - cte1
 !
-! initialize constant.....        
+! initialize constant.....
         forcex = zero
         forcey = zero
         forcez = zero
@@ -253,7 +253,12 @@
           k = tid/(l*m) + 1
 #  endif
 #elif defined(OFFLOAD)
-!$OMP target teams distribute parallel do simd collapse(3)
+!$OMP target teams distribute parallel do simd collapse(3)                &
+!$OMP private(x,y,z,x01,x02,x03,x04,x05,x06,x07,x08,x09,x10,x11,x12,      &
+!$OMP         x13,x14,x15,x16,x17,x18,x19,e01,e02,e03,e04,e05,e06,e07,    &
+!$OMP         e08,e09,e10,e11,e12,e13,e14,e15,e16,e17,e18,e19,rho,rhoinv, &
+!$OMP         vx,vy,vz,vx2,vy2,vz2,vsq,rp0,rp1,rp2,vxpz,vxmz,vxpy,vxmy,   &
+!$OMP         vypz,vymz,qx,qy,qz,q0,qxpz,qxmz,qxpy,qxmy,qypz,qymz)
         do k = 1,n
         do j = 1,m
         do i = 1,l
@@ -296,9 +301,9 @@
            vx = (x01+x02+x03+x04+x05-x10-x11-x12-x13-x14)*rhoinv
            vy = (x03+x07+x08+x09+x12-x01-x10-x16-x17-x18)*rhoinv
            vz = (x04+x06+x07+x13+x18-x02-x09-x11-x15-x16)*rhoinv
-!           
+!
 #ifdef TGVFORCING
-!shift equilibrium velocity           
+!shift equilibrium velocity
            z = (real(k,mykind)-0.5d0)/real(n,mykind)  ! 0<z<1
            y = (real(j,mykind)-0.5d0)/real(m,mykind)  ! 0<y<1
            x = (real(i,mykind)-0.5d0)/real(l,mykind)  ! 0<x<1
@@ -307,7 +312,7 @@
 #endif
 !
 #ifdef DEBUG_3
-           write(41,3131) i+offset(1),j+offset(2), obs(i,j),   & 
+           write(41,3131) i+offset(1),j+offset(2), obs(i,j),   &
                         vx,vy,rho
 !                       x01,x03,x05,x08,x10,x12,x14,x17,x19
 #endif
@@ -407,7 +412,7 @@
                  n11 + &
                  n12 + &
                  n13 + &
-                 n14 
+                 n14
 !
            Pyy = n01 + &
                  n03 + &
@@ -418,7 +423,7 @@
                  n12 + &
                  n16 + &
                  n17 + &
-                 n18 
+                 n18
 !
            Pzz = n02 + &
                  n04 + &
@@ -429,38 +434,38 @@
                  n13 + &
                  n15 + &
                  n16 + &
-                 n18 
+                 n18
 !
            Pxz = -n02 &
                  +n04 &
                  +n11 &
-                 -n13 
+                 -n13
 !
            Pxy = -n01 &
                  +n03 &
                  +n10 &
-                 -n12 
+                 -n12
 !
            Pyz = +n07 &
                  -n09 &
                  +n16 &
-                 -n18 
+                 -n18
 !
            Pyx = Pxy
            Pzx = Pxz
            Pzy = Pyz
-!           
+!
 ! calculate Pi total
            Ptotal =sqrt((Pxx)**2 + (Pyy)**2 + (Pzz)**2 + &
                         (2.0*Pxy*Pyx)                  + &
                         (2.0*Pxz*Pzx)                  + &
                         (2.0*Pyz*Pzy))
-!           
+!
 ! adding turbulent viscosity
            Ts = 1/(2*omega1) + sqrt(18*(cteS)**2 *Ptotal+(1/omega1)**2)/2
            omega = 1/Ts
 !
-#endif                  
+#endif
 !
 ! forcing term
 !
@@ -493,25 +498,25 @@
 #endif
 !
 ! loop on populations
-        b01(i,j,k) = x01 - omega*(x01-e01) + forcex - forcey         
+        b01(i,j,k) = x01 - omega*(x01-e01) + forcex - forcey
         b02(i,j,k) = x02 - omega*(x02-e02) + forcex          - forcez
-        b03(i,j,k) = x03 - omega*(x03-e03) + forcex + forcey         
+        b03(i,j,k) = x03 - omega*(x03-e03) + forcex + forcey
         b04(i,j,k) = x04 - omega*(x04-e04) + forcex          + forcez
-        b05(i,j,k) = x05 - omega*(x05-e05) + forcex                  
+        b05(i,j,k) = x05 - omega*(x05-e05) + forcex
         b06(i,j,k) = x06 - omega*(x06-e06)                   + forcez
         b07(i,j,k) = x07 - omega*(x07-e07)          + forcey + forcez
-        b08(i,j,k) = x08 - omega*(x08-e08)          + forcey         
+        b08(i,j,k) = x08 - omega*(x08-e08)          + forcey
         b09(i,j,k) = x09 - omega*(x09-e09)          + forcey - forcez
-        b10(i,j,k) = x10 - omega*(x10-e10) - forcex - forcey         
+        b10(i,j,k) = x10 - omega*(x10-e10) - forcex - forcey
         b11(i,j,k) = x11 - omega*(x11-e11) - forcex          - forcez
-        b12(i,j,k) = x12 - omega*(x12-e12) - forcex + forcey         
+        b12(i,j,k) = x12 - omega*(x12-e12) - forcex + forcey
         b13(i,j,k) = x13 - omega*(x13-e13) - forcex          + forcez
-        b14(i,j,k) = x14 - omega*(x14-e14) - forcex                  
+        b14(i,j,k) = x14 - omega*(x14-e14) - forcex
         b15(i,j,k) = x15 - omega*(x15-e15)                   - forcez
         b16(i,j,k) = x16 - omega*(x16-e16)          - forcey - forcez
-        b17(i,j,k) = x17 - omega*(x17-e17)          - forcey         
+        b17(i,j,k) = x17 - omega*(x17-e17)          - forcey
         b18(i,j,k) = x18 - omega*(x18-e18)          - forcey + forcez
-        a19(i,j,k) = x19 - omega*(x19-e19)                           
+        a19(i,j,k) = x19 - omega*(x19-e19)
 
 #ifdef OFFLOAD_KERNEL_SYNTAX
         end if
