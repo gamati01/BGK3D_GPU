@@ -31,6 +31,20 @@
                    hipGetErrorString(_e), __FILE__, __LINE__);             \
        }                                                                   \
    } while (0)
+// Non-blocking check of the last kernel LAUNCH error (bad config, too many
+// resources, invalid grid/block, ...).  hipGetLastError does NOT synchronize
+// the device, so it is free to call after every launch and does not perturb
+// the async pipeline / timing.  Execution-time faults still surface later at
+// gpu_device_sync().  A failed launch that goes undetected makes the loop run
+// near-instantly and reports a physically impossible Mlups, so flag it loudly.
+#  define GPU_CHECK_LAUNCH(name)  do {                                        \
+       hipError_t _le = hipGetLastError();                                    \
+       if (_le != hipSuccess) {                                               \
+           fprintf(stderr, "ERROR: HIP launch failed for %s: %s at %s:%d\n",  \
+                   (name), hipGetErrorString(_le), __FILE__, __LINE__);       \
+           fflush(stderr);                                                    \
+       }                                                                      \
+   } while (0)
 #  define GPU_DEVICE_SYNC() hipDeviceSynchronize()
 #elif defined(USE_CUDA)
 #  include <cuda_runtime.h>
@@ -40,6 +54,14 @@
            fprintf(stderr, "CUDA error %s at %s:%d\n",                     \
                    cudaGetErrorString(_e), __FILE__, __LINE__);            \
        }                                                                   \
+   } while (0)
+#  define GPU_CHECK_LAUNCH(name)  do {                                        \
+       cudaError_t _le = cudaGetLastError();                                  \
+       if (_le != cudaSuccess) {                                             \
+           fprintf(stderr, "ERROR: CUDA launch failed for %s: %s at %s:%d\n", \
+                   (name), cudaGetErrorString(_le), __FILE__, __LINE__);      \
+           fflush(stderr);                                                    \
+       }                                                                      \
    } while (0)
 #  define GPU_DEVICE_SYNC() cudaDeviceSynchronize()
 #else
@@ -247,6 +269,7 @@ static inline void col_mc_gpu_launch(const ColArrays& arr, const ColParams& p)
 #else
     col_mc_kernel<<<grid, block>>>(arr, p);
 #endif
+    GPU_CHECK_LAUNCH("col_mc_kernel");
 
     // NOTE: no per-step device synchronization here.  The native boundary
     // kernels (bcond_gpu.hpp) now run on the SAME default stream as this

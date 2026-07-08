@@ -90,13 +90,43 @@ static inline int grid_for(long count, int block) {
     return (int)((count + block - 1) / block);
 }
 
-// Macro to launch a 1D kernel over `count` cells on the default stream.
+// Non-blocking check of the last kernel LAUNCH error.  hipGetLastError /
+// cudaGetLastError do NOT synchronize the device, so this is free to call
+// after every launch and does not perturb async timing.  Execution-time
+// faults still surface later at gpu_device_sync().  Flag failures loudly so
+// a silently-skipped kernel can never masquerade as a fast, valid run.
 #if defined(USE_HIP)
-#  define LAUNCH1D(KERN, COUNT, ARR, PAR)                                  \
-     hipLaunchKernelGGL(KERN, dim3(grid_for((COUNT), 256)), dim3(256), 0, 0, (ARR), (PAR))
+#  define GPU_CHECK_LAUNCH(name)  do {                                        \
+       hipError_t _le = hipGetLastError();                                    \
+       if (_le != hipSuccess) {                                               \
+           fprintf(stderr, "ERROR: HIP launch failed for %s: %s at %s:%d\n",  \
+                   (name), hipGetErrorString(_le), __FILE__, __LINE__);       \
+           fflush(stderr);                                                    \
+       }                                                                      \
+   } while (0)
 #else
-#  define LAUNCH1D(KERN, COUNT, ARR, PAR)                                  \
-     KERN<<<grid_for((COUNT), 256), 256>>>((ARR), (PAR))
+#  define GPU_CHECK_LAUNCH(name)  do {                                        \
+       cudaError_t _le = cudaGetLastError();                                  \
+       if (_le != cudaSuccess) {                                             \
+           fprintf(stderr, "ERROR: CUDA launch failed for %s: %s at %s:%d\n", \
+                   (name), cudaGetErrorString(_le), __FILE__, __LINE__);      \
+           fflush(stderr);                                                    \
+       }                                                                      \
+   } while (0)
+#endif
+
+// Macro to launch a 1D kernel over `count` cells on the default stream.
+// Each launch is followed by a non-blocking launch-error check.
+#if defined(USE_HIP)
+#  define LAUNCH1D(KERN, COUNT, ARR, PAR)  do {                            \
+     hipLaunchKernelGGL(KERN, dim3(grid_for((COUNT), 256)), dim3(256), 0, 0, (ARR), (PAR)); \
+     GPU_CHECK_LAUNCH(#KERN);                                              \
+   } while (0)
+#else
+#  define LAUNCH1D(KERN, COUNT, ARR, PAR)  do {                            \
+     KERN<<<grid_for((COUNT), 256), 256>>>((ARR), (PAR));                  \
+     GPU_CHECK_LAUNCH(#KERN);                                              \
+   } while (0)
 #endif
 
 // ====================================================================
@@ -435,6 +465,7 @@ static inline void bcond_obs_gpu_launch(const BcArrays& arr, const BcParams& p, 
 #else
     bc_obs_kernel<<<grid_for(count, 256), 256>>>(arr, p, obs);
 #endif
+    GPU_CHECK_LAUNCH("bc_obs_kernel");
 }
 
 // ====================================================================
@@ -516,14 +547,26 @@ extern "C" void bcond_obs_gpu(real_t** a, const int* obs, int l, int m, int n, i
 // (diagno / dissipation / draglift / save), replacing the per-step sync.
 extern "C" void gpu_device_sync()
 {
+    // A device-sync error means a kernel faulted during execution: every
+    // result after this point (and the reported Mlups) is garbage.  Fail
+    // loudly instead of continuing silently, so a broken run can never
+    // masquerade as a fast, valid one.
 #if defined(USE_HIP)
     hipError_t e = hipDeviceSynchronize();
-    if (e != hipSuccess)
-        fprintf(stderr, "HIP sync error %s at %s:%d\n", hipGetErrorString(e), __FILE__, __LINE__);
+    if (e != hipSuccess) {
+        fprintf(stderr, "ERROR: HIP device sync failed: %s at %s:%d\n",
+                hipGetErrorString(e), __FILE__, __LINE__);
+        fflush(stderr);
+        abort();
+    }
 #else
     cudaError_t e = cudaDeviceSynchronize();
-    if (e != cudaSuccess)
-        fprintf(stderr, "CUDA sync error %s at %s:%d\n", cudaGetErrorString(e), __FILE__, __LINE__);
+    if (e != cudaSuccess) {
+        fprintf(stderr, "ERROR: CUDA device sync failed: %s at %s:%d\n",
+                cudaGetErrorString(e), __FILE__, __LINE__);
+        fflush(stderr);
+        abort();
+    }
 #endif
 }
 
