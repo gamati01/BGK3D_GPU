@@ -55,6 +55,7 @@
 !
       ipad  = 0         ! no memory padding (x)
       jpad  = 0         ! no memory padding (y)
+      kpad  = 0         ! no memory padding (z) [was previously uninitialised]
       cteS  = 0.1       ! Smagorinsky constant
 !
       open(15,FILE='bgk.input',STATUS='old')
