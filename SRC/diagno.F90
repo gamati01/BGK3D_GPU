@@ -36,8 +36,15 @@
        integer, INTENT(in) :: itime
        integer             :: i,j,k
 !
-       real(mykind):: rtot,xtot,ytot,ztot,stot
-       real(mykind):: tke
+! Global reductions accumulate over l*m*n cells.  In single precision the
+! running sum saturates once it passes 2**24 (~16.7M): adding O(1) terms
+! stops registering, so for grids with l*m*n >= 2**24 (e.g. 256**3) the
+! reported mean density pins to 2**24/(l*m*n) (0.125 at 512**3) and the
+! velocity/energy means are corrupted.  Accumulate in double precision so
+! the diagnostics stay correct at any grid size (the stored field and the
+! solver itself remain single precision).
+       real(dp):: rtot,xtot,ytot,ztot,stot
+       real(dp):: tke
        real(mykind):: rho,rhoinv
        real(mykind):: x01,x02,x03,x04,x05,x06,x07
        real(mykind):: x08,x09,x10,x11,x12,x13
